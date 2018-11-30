@@ -84,8 +84,7 @@ export function PointSeriesPageProvider({ getService }) {
     async setValue(newValue) {
       await remote.click(By.css('button[ng-click="numberListCntr.add()"]'), defaultFindTimeout * 2);
       const input = await remote.findElement(By.css('input[ng-model="numberListCntr.getList()[$index]"]'));
-      await input.clear();
-      await input.sendKeys(newValue);
+      await remote.setValue(input, newValue);
     }
 
     async setValueAxisPosition(axis, position) {

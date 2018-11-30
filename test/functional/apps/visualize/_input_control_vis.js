@@ -53,7 +53,7 @@ export default function ({ getService, getPageObjects }) {
 
       it('should contain dropdown with terms aggregation results as options', async () => {
         const menu = await comboBox.getOptionsList('listControlSelect0');
-        expect(menu.trim().split('\n').join()).to.equal('ios,osx,win 7,win 8,win xp');
+        expect(menu).to.eql(['ios', 'osx', 'win 7', 'win 8', 'win xp']);
       });
 
       it('should display staging control buttons', async () => {
@@ -169,8 +169,8 @@ export default function ({ getService, getPageObjects }) {
 
         // Expect control to be disabled because no terms could be gathered with time filter applied
         const input = await find.byCssSelector('[data-test-subj="inputControl0"] input');
-        const isDisabled = await input.getProperty('disabled');
-        expect(isDisabled).to.equal(true);
+        const isDisabled = await input.getAttribute('disabled');
+        expect(isDisabled).to.equal('true');
       });
 
       it('should re-create control when global time filter is updated', async () => {
@@ -179,7 +179,7 @@ export default function ({ getService, getPageObjects }) {
 
         // Expect control to have values for selected time filter
         const menu = await comboBox.getOptionsList('listControlSelect0');
-        expect(menu.trim().split('\n').join()).to.equal('osx,win 7,win 8,win xp');
+        expect(menu).to.eql(['osx', 'win 7', 'win 8', 'win xp']);
       });
     });
 
@@ -199,13 +199,13 @@ export default function ({ getService, getPageObjects }) {
 
       it('should fetch new options when string field is filtered', async () => {
         const initialOptions = await comboBox.getOptionsList('listControlSelect0');
-        expect(initialOptions.trim().split('\n').join()).to.equal('BD,BR,CN,ID,IN,JP,NG,PK,RU,US');
+        expect(initialOptions).to.eql(['BD', 'BR', 'CN', 'ID', 'IN', 'JP', 'NG', 'PK', 'RU', 'US']);
 
         await comboBox.filterOptionsList('listControlSelect0', 'R');
         await PageObjects.header.waitUntilLoadingHasFinished();
 
         const updatedOptions = await comboBox.getOptionsList('listControlSelect0');
-        expect(updatedOptions.trim().split('\n').join()).to.equal('AR,BR,FR,GR,IR,KR,RO,RU,RW,TR');
+        expect(updatedOptions).to.eql(['AR', 'BR', 'FR', 'GR', 'IR', 'KR', 'RO', 'RU', 'RW', 'TR']);
       });
 
       it('should not fetch new options when non-string is filtered', async () => {
@@ -214,14 +214,14 @@ export default function ({ getService, getPageObjects }) {
         await PageObjects.header.waitUntilLoadingHasFinished();
 
         const initialOptions = await comboBox.getOptionsList('listControlSelect0');
-        expect(initialOptions.trim().split('\n').join()).to.equal(
-          '135.206.117.161,177.194.175.66,18.55.141.62,243.158.217.196,32.146.206.24');
+        expect(initialOptions).to.eql(
+          ['135.206.117.161', '177.194.175.66', '18.55.141.62', '243.158.217.196', '32.146.206.24']);
 
         await comboBox.filterOptionsList('listControlSelect0', '17');
         await PageObjects.header.waitUntilLoadingHasFinished();
 
         const updatedOptions = await comboBox.getOptionsList('listControlSelect0');
-        expect(updatedOptions.trim().split('\n').join()).to.equal('135.206.117.161,177.194.175.66,243.158.217.196');
+        expect(updatedOptions).to.eql(['135.206.117.161', '177.194.175.66', '243.158.217.196']);
       });
     });
 
@@ -247,18 +247,18 @@ export default function ({ getService, getPageObjects }) {
 
       it('should disable child control when parent control is not set', async () => {
         const parentControlMenu = await comboBox.getOptionsList('listControlSelect0');
-        expect(parentControlMenu.trim().split('\n').join()).to.equal('BD,BR,CN,ID,IN,JP,NG,PK,RU,US');
+        expect(parentControlMenu).to.eql(['BD', 'BR', 'CN', 'ID', 'IN', 'JP', 'NG', 'PK', 'RU', 'US']);
 
         const childControlInput = await find.byCssSelector('[data-test-subj="inputControl1"] input');
-        const isDisabled = await childControlInput.getProperty('disabled');
-        expect(isDisabled).to.equal(true);
+        const isDisabled = await childControlInput.getAttribute('disabled');
+        expect(isDisabled).to.equal('true');
       });
 
       it('should filter child control options by parent control value', async () => {
         await comboBox.set('listControlSelect0', 'BR');
 
         const childControlMenu = await comboBox.getOptionsList('listControlSelect1');
-        expect(childControlMenu.trim().split('\n').join()).to.equal('14.61.182.136,3.174.21.181,6.183.121.70,71.241.97.89,9.69.255.135');
+        expect(childControlMenu).to.eql(['14.61.182.136', '3.174.21.181', '6.183.121.70', '71.241.97.89', '9.69.255.135']);
       });
 
       it('should create a seperate filter pill for parent control and child control', async () => {
@@ -278,8 +278,8 @@ export default function ({ getService, getPageObjects }) {
         await PageObjects.common.sleep(500); // give time for filter to be removed and event handlers to fire
 
         const childControlInput = await find.byCssSelector('[data-test-subj="inputControl1"] input');
-        const isDisabled = await childControlInput.getProperty('disabled');
-        expect(isDisabled).to.equal(true);
+        const isDisabled = await childControlInput.getAttribute('disabled');
+        expect(isDisabled).to.equal('true');
 
         await testSubjects.click('inputControlCancelBtn');
       });

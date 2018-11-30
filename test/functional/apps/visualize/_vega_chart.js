@@ -46,8 +46,7 @@ export default function ({ getService, getPageObjects }) {
       it('should have view and control containers', async function () {
         const view = await PageObjects.visualize.getVegaViewContainer();
         expect(view).to.be.ok();
-        const size = await view.getSize();
-        expect(size).to.have.property('width').and.to.have.property('height');
+        const size = await view.getRect();
         expect(size.width).to.be.above(0);
         expect(size.height).to.be.above(0);
 

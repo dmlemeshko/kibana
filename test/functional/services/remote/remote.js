@@ -271,6 +271,22 @@ export async function RemoteProvider({ getService }) {
         `The element ${selectorObj} was still present when it should have disappeared.`);
       },
 
+      async waitForChildNotPresent(element, childSelector) {
+        if ((element instanceof webdriver.WebElement) === false) {
+          return;
+        }
+        await driver.wait(() => {
+          return element.findElements(childSelector).then((children) => {
+            if (children.length <= 0) {
+              return true;
+            }
+            return false;
+          });
+        },
+        defaultFindTimeout,
+        `The element ${childSelector} was still present when it should have disappeared.`);
+      },
+
       async isElementVisible(selectorObj) {
         try {
           return await driver.findElement(selectorObj).isDisplayed();
@@ -285,6 +301,11 @@ export async function RemoteProvider({ getService }) {
 
       async clickViaJS(element) {
         await driver.executeScript('arguments[0].click();', element);
+      },
+
+      async doubleClick(element) {
+        const actions = driver.actions({ bridge: true });
+        await actions.doubleClick(element).perform();
       }
     };
   }

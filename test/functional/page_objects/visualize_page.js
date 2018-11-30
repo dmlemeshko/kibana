@@ -24,6 +24,7 @@ import { By, Key } from 'selenium-webdriver';
 
 export function VisualizePageProvider({ getService, getPageObjects }) {
   const remote = getService('remote');
+  const wait = getService('wait');
   const config = getService('config');
   const testSubjects = getService('testSubjects');
   const retry = getService('retry');
@@ -52,7 +53,7 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
     }
 
     async waitForVisualizationSelectPage() {
-      await remote.waitForElementPresent(By.css('[data-test-subj="visualizeSelectTypePage"]'));
+      await wait.forElementPresent(By.css('.visNewVisDialog'));
     }
 
     //TODO: Make sure to preserve this new behavior https://github.com/elastic/kibana/pull/23833/files#diff-b2c46095f182a4835e5778b9ef0d9132R69
@@ -152,25 +153,27 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
       return await Promise.all(tags.map(returnTagSize));
     }
 
-    async clickVerticalBarChart() {
-      const vertBar = await remote.findElement(By.partialLinkText('Vertical Bar'));
-      await vertBar.click();
+    async _clickVisulalizationType(type) {
+      const icon = await wait.forElementPresent(By.css(`[data-test-subj="visType-${type}"]`));
+      await remote.moveMouseToAndClick(icon);
       await PageObjects.header.waitUntilLoadingHasFinished();
+    }
+
+    async clickVerticalBarChart() {
+      await this._clickVisulalizationType('histogram');
     }
 
     async clickHeatmapChart() {
-      await remote.click(By.partialLinkText('Heat Map'));
-      await PageObjects.header.waitUntilLoadingHasFinished();
+      await this._clickVisulalizationType('heatmap');
     }
 
     async clickInputControlVis() {
-      await remote.click(By.partialLinkText('Controls'));
-      await PageObjects.header.waitUntilLoadingHasFinished();
+      await this._clickVisulalizationType('input_control_vis');
     }
 
     async getChartTypes() {
       const chartTypeField = await testSubjects.find('visNewDialogTypes');
-      const chartTypes = await chartTypeField.findAllByTagName('button');
+      const chartTypes = await chartTypeField.findElement(By.tagName('button'));
       async function getChartType(chart) {
         const label = await testSubjects.findDescendant('visTypeTitle', chart);
         return await label.getVisibleText();
@@ -398,7 +401,7 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
     async clickBucket(bucketName) {
       await retry.try(async () => {
         const chartTypes = await retry.try(
-          async () => await find.allByCssSelector(`[data-test-subj="${testSubject}"] .list-group-menu-item`));
+          async () => await find.allByCssSelector(`[data-test-subj="${bucketName}"] .list-group-menu-item`));
         log.debug('found bucket types ' + chartTypes.length);
 
         async function getChartType(chart) {
@@ -1112,7 +1115,7 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
     }
 
     async getLegendEntries() {
-      const legendEntries = await remote.findElements(By.css('.legend-value-title'), defaultFindTimeout * 2);
+      const legendEntries = await remote.findElements(By.css('.visLegend__list li'), defaultFindTimeout * 2);
       return await Promise.all(legendEntries.map(async chart => await chart.getAttribute('data-label')));
     }
 
@@ -1148,7 +1151,8 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
 
     async filterLegend(name) {
       await this.toggleLegend();
-      await testSubjects.click(`legend-${name}`);
+      const filter = await remote.waitForElementPresent(By.css(`[data-test-subj~="legend-${name}"]`));
+      await filter.click();
       await testSubjects.click(`legend-${name}-filterIn`);
     }
 
