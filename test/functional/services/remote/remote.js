@@ -18,11 +18,9 @@
  */
 
 import { initWebDriver } from './webdriver';
-import { BrowserDriverApi } from './browser_driver_api';
 
 export async function RemoteProvider({ getService }) {
   const lifecycle = getService('lifecycle');
-  const config = getService('config');
   const log = getService('log');
   const possibleBrowsers = ['chrome', 'firefox', 'ie'];
   const browserType = process.env.TEST_BROWSER_TYPE || 'chrome';
@@ -31,14 +29,10 @@ export async function RemoteProvider({ getService }) {
     throw new Error(`Unexpected TEST_BROWSER_TYPE "${browserType}". Valid options are ` +  possibleBrowsers.join(','));
   }
 
-  const browserDriverApi = await BrowserDriverApi.factory(log, config.get(browserType + 'driver.url'), browserType);
-  lifecycle.on('cleanup', async () => await browserDriverApi.stop());
+  const { driver, By, Key, until } = await initWebDriver({ log });
+  log.info('[webdriver] initialized');
 
-  await browserDriverApi.start();
-
-  const { driver, By, Key, until } = await initWebDriver({ log, browserDriverApi: browserDriverApi });
-
-  log.info('Remote initialized');
+  lifecycle.on('cleanup', async () => await driver.quit());
 
   lifecycle.on('beforeTests', async () => {
     // hard coded default, can be overridden per suite using `browser.setWindowSize()`
