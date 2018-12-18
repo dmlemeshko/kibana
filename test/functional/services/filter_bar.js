@@ -19,7 +19,6 @@
 
 export function FilterBarProvider({ getService, getPageObjects }) {
   const browser = getService('browser');
-  const Keys = browser.getKeys();
   const testSubjects = getService('testSubjects');
   const find = getService('find');
   const PageObjects = getPageObjects(['common', 'header']);
@@ -91,7 +90,7 @@ export function FilterBarProvider({ getService, getPageObjects }) {
         }
         for (let j = 0; j < fieldValues.length; j++) {
           await paramFields[i].type(fieldValues[j]);
-          await paramFields[i].pressKeys(Keys.RETURN);
+          await paramFields[i].pressKeys(browser.keys.RETURN);
         }
       }
       await testSubjects.click('saveFilter');

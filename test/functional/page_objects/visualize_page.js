@@ -23,7 +23,6 @@ import expect from 'expect.js';
 
 export function VisualizePageProvider({ getService, getPageObjects }) {
   const browser = getService('browser');
-  const Keys = browser.getKeys();
   const config = getService('config');
   const testSubjects = getService('testSubjects');
   const retry = getService('retry');
@@ -543,7 +542,7 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
     async setInterval(newValue) {
       const input = await find.byCssSelector('select[ng-model="agg.params.interval"]');
       await input.type(newValue);
-      await input.pressKeys(Keys.RETURN);
+      await input.pressKeys(browser.keys.RETURN);
     }
 
     async setCustomInterval(newValue) {
@@ -609,7 +608,7 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
 
     async sizeUpEditor() {
       await testSubjects.click('visualizeEditorResizer');
-      await browser.pressKeys(Keys.ARROW_RIGHT);
+      await browser.pressKeys(browser.keys.ARROW_RIGHT);
     }
 
     async clickOptions() {

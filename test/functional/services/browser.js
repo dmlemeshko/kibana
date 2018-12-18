@@ -23,14 +23,15 @@ import Keys from 'leadfoot/keys';
 export function BrowserProvider({ getService }) {
   const leadfoot = getService('__leadfoot__');
 
-  return new class BrowserService {
+  class BrowserService {
+
+    constructor() {
+      this.keys = Keys;
+    }
 
     /**
      * Gets Keys to call keyboard events
      */
-    getKeys() {
-      return Keys;
-    }
 
     /**
      * Gets the dimensions of a window.
@@ -253,5 +254,7 @@ export function BrowserProvider({ getService }) {
     async execute(...args) {
       return await leadfoot.execute(...args);
     }
-  };
+  }
+
+  return new BrowserService();
 }
