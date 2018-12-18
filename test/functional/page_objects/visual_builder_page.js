@@ -17,13 +17,12 @@
  * under the License.
  */
 
-import Keys from 'leadfoot/keys';
-
 export function VisualBuilderPageProvider({ getService, getPageObjects }) {
   const find = getService('find');
   const retry = getService('retry');
   const log = getService('log');
   const browser = getService('browser');
+  const Keys = browser.getKeys();
   const testSubjects = getService('testSubjects');
   const comboBox = getService('comboBox');
   const PageObjects = getPageObjects(['common', 'header', 'visualize']);

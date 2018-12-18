@@ -18,11 +18,20 @@
  */
 
 import { modifyUrl } from '../../../src/core/utils';
+import Keys from 'leadfoot/keys';
 
 export function BrowserProvider({ getService }) {
   const leadfoot = getService('__leadfoot__');
 
   return new class BrowserService {
+
+    /**
+     * Gets Keys to call keyboard events
+     */
+    getKeys() {
+      return Keys;
+    }
+
     /**
      * Gets the dimensions of a window.
      * https://theintern.io/leadfoot/module-leadfoot_Session.html#getWindowSize
@@ -33,7 +42,6 @@ export function BrowserProvider({ getService }) {
     async getWindowSize(...args) {
       return await leadfoot.getWindowSize(...args);
     }
-
 
     /**
      * Sets the dimensions of a window.

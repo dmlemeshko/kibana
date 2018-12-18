@@ -20,10 +20,10 @@
 import { VisualizeConstants } from '../../../src/legacy/core_plugins/kibana/public/visualize/visualize_constants';
 import Bluebird from 'bluebird';
 import expect from 'expect.js';
-import Keys from 'leadfoot/keys';
 
 export function VisualizePageProvider({ getService, getPageObjects }) {
   const browser = getService('browser');
+  const Keys = browser.getKeys();
   const config = getService('config');
   const testSubjects = getService('testSubjects');
   const retry = getService('retry');
@@ -535,10 +535,8 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
     }
 
     async getInterval() {
-      const select = await find.byCssSelector('select[ng-model="agg.params.interval"]');
-      const selectedIndex = await select.getProperty('selectedIndex');
       const intervalElement = await find.byCssSelector(
-        `select[ng-model="agg.params.interval"] option:nth-child(${(selectedIndex + 1)})`);
+        `select[ng-model="agg.params.interval"] option[selected]`);
       return await intervalElement.getProperty('label');
     }
 

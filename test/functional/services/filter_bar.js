@@ -17,10 +17,9 @@
  * under the License.
  */
 
-import Keys from 'leadfoot/keys';
-
 export function FilterBarProvider({ getService, getPageObjects }) {
   const browser = getService('browser');
+  const Keys = browser.getKeys();
   const testSubjects = getService('testSubjects');
   const find = getService('find');
   const PageObjects = getPageObjects(['common', 'header']);
