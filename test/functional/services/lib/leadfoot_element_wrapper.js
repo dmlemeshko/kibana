@@ -87,6 +87,17 @@ export class LeadfootElementWrapper {
   }
 
   /**
+   * Sends keyboard event into the element.
+   * https://theintern.io/leadfoot/module-leadfoot_Session.html#pressKeys
+   *
+   * @param  {string|string[]} keys
+   * @return {Promise<void>}
+   */
+  async pressKeys(...args) {
+    await this._leadfoot.pressKeys(...args);
+  }
+
+  /**
    * Gets the first element inside this element matching the given CSS class name.
    * https://theintern.io/leadfoot/module-leadfoot_Element.html#findByClassName
    *

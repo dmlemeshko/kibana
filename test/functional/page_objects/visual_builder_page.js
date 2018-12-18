@@ -64,12 +64,12 @@ export function VisualBuilderPageProvider({ getService, getPageObjects }) {
       // a textarea we must really select all text and remove it, and cannot use
       // clearValue().
       if (process.platform === 'darwin') {
-        await browser.pressKeys([Keys.COMMAND, 'a']); // Select all Mac
+        await input.pressKeys([Keys.COMMAND, 'a']); // Select all Mac
       } else {
-        await browser.pressKeys([Keys.CONTROL, 'a']); // Select all for everything else
+        await input.pressKeys([Keys.CONTROL, 'a']); // Select all for everything else
       }
-      await browser.pressKeys(Keys.NULL); // Release modifier keys
-      await browser.pressKeys(Keys.BACKSPACE); // Delete all content
+      await input.pressKeys(Keys.NULL); // Release modifier keys
+      await input.pressKeys(Keys.BACKSPACE); // Delete all content
       await input.type(markdown);
       await PageObjects.header.waitUntilLoadingHasFinished();
     }
@@ -207,7 +207,7 @@ export function VisualBuilderPageProvider({ getService, getPageObjects }) {
       const el = await testSubjects.find('comboBoxSearchInput');
       await el.clearValue();
       await el.type(timeField);
-      await browser.pressKeys(Keys.RETURN);
+      await el.pressKeys(Keys.RETURN);
       await PageObjects.header.waitUntilLoadingHasFinished();
     }
   }

@@ -399,7 +399,7 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
         await find.clickByCssSelector(selector);
         const input = await find.byCssSelector(`${selector} input.ui-select-search`);
         await input.type(myString);
-        await browser.pressKeys('\uE006');
+        await input.pressKeys('\uE006');
       });
       await PageObjects.common.sleep(500);
     }
@@ -510,7 +510,7 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
         await find.clickByCssSelector(selector);
         const input = await find.byCssSelector(`${selector} input.ui-select-search`);
         await input.type(fieldValue);
-        await browser.pressKeys('\uE006');
+        await input.pressKeys('\uE006');
       });
       await PageObjects.common.sleep(500);
     }
@@ -543,7 +543,7 @@ export function VisualizePageProvider({ getService, getPageObjects }) {
     async setInterval(newValue) {
       const input = await find.byCssSelector('select[ng-model="agg.params.interval"]');
       await input.type(newValue);
-      await browser.pressKeys(Keys.RETURN);
+      await input.pressKeys(Keys.RETURN);
     }
 
     async setCustomInterval(newValue) {
