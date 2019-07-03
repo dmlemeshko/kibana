@@ -490,5 +490,12 @@ export async function BrowserProvider({ getService }: FtrProviderContext) {
       await driver.executeScript('document.body.scrollLeft = ' + scrollSize);
       return this.getScrollLeft();
     }
+
+    public async acceptAlert() {
+      await driver
+        .switchTo()
+        .alert()
+        .accept();
+    }
   }();
 }
