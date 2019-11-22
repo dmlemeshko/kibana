@@ -130,7 +130,10 @@ async function attemptToCreateCommand(
         const firefoxOptions = new firefox.Options();
         // Firefox 65+ supports logging console output to stdout
         firefoxOptions.set('moz:firefoxOptions', {
-          prefs: { 'devtools.console.stdout.content': true },
+          prefs: {
+            'devtools.console.stdout.content': true,
+            'network.websocket.allowInsecureFromHTTPS': true,
+          },
         });
         if (headlessBrowser === '1') {
           // See: https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Headless_mode
