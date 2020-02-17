@@ -24,7 +24,7 @@ export default ({ getService, getPageObjects }) => {
   const PageObjects = getPageObjects(['visualize']);
 
   describe('visualize app', function() {
-    this.tags('smoke');
+    // this.tags('smoke');
 
     describe('experimental visualizations', () => {
       beforeEach(async () => {

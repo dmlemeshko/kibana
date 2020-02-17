@@ -32,7 +32,7 @@ export default function({ getService, getPageObjects }) {
   const esArchiver = getService('esArchiver');
 
   describe('doc link in discover', function contextSize() {
-    this.tags('smoke');
+    // this.tags('smoke');
     before(async function() {
       await esArchiver.loadIfNeeded('logstash_functional');
       await PageObjects.common.navigateToApp('discover');
