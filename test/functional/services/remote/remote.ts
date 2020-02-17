@@ -135,8 +135,10 @@ export async function RemoteProvider({ getService }: FtrProviderContext) {
       .manage()
       .window()
       .setRect({ width, height });
-    await clearBrowserStorage('sessionStorage');
-    await clearBrowserStorage('localStorage');
+    if (browserType === Browsers.Chrome) {
+      await clearBrowserStorage('sessionStorage');
+      await clearBrowserStorage('localStorage');
+    }
   });
 
   lifecycle.cleanup.add(async () => {
