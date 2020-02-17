@@ -94,7 +94,7 @@ def getWorkerFromParams(isXpack, job, ciGroup) {
   }
 }
 
-def getWorkerMap(agentNumber, numberOfExecutions, worker, workerFailures, maxWorkerProcesses = 12) {
+def getWorkerMap(agentNumber, numberOfExecutions, worker, workerFailures, maxWorkerProcesses = 6) {
   def workerMap = [:]
   def numberOfWorkers = Math.min(numberOfExecutions, maxWorkerProcesses)
 
