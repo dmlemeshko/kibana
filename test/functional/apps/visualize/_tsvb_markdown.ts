@@ -38,7 +38,7 @@ export default function({ getPageObjects, getService }: FtrProviderContext) {
     });
   }
 
-  describe('visual builder', function describeIndexTests() {
+  describe.skip('visual builder', function describeIndexTests() {
     describe('markdown', () => {
       before(async () => {
         await visualBuilder.resetPage();

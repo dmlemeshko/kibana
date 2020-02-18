@@ -27,7 +27,7 @@ export default function({ getPageObjects }: FtrProviderContext) {
     'visChart',
   ]);
 
-  describe('visual builder', function describeIndexTests() {
+  describe.skip('visual builder', function describeIndexTests() {
     describe('table', () => {
       beforeEach(async () => {
         await visualBuilder.resetPage('Sep 22, 2015 @ 06:00:00.000', 'Sep 22, 2015 @ 11:00:00.000');
