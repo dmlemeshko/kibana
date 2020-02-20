@@ -19,7 +19,9 @@
 
 import expect from '@kbn/expect';
 
-export function PieChartProvider({ getService }) {
+import { FtrProviderContext } from '../../ftr_provider_context';
+
+export function PieChartProvider({ getService }: FtrProviderContext) {
   const log = getService('log');
   const retry = getService('retry');
   const config = getService('config');
@@ -28,8 +30,8 @@ export function PieChartProvider({ getService }) {
   const find = getService('find');
   const defaultFindTimeout = config.get('timeouts.find');
 
-  return new (class PieChart {
-    async filterOnPieSlice(name) {
+  class PieChart {
+    async filterOnPieSlice(name: string) {
       log.debug(`PieChart.filterOnPieSlice(${name})`);
       if (name) {
         await testSubjects.click(`pieSlice-${name.split(' ').join('-')}`);
@@ -43,27 +45,27 @@ export function PieChartProvider({ getService }) {
       }
     }
 
-    async filterByLegendItem(label) {
+    async filterByLegendItem(label: string) {
       log.debug(`PieChart.filterByLegendItem(${label})`);
       await testSubjects.click(`legend-${label}`);
       await testSubjects.click(`legend-${label}-filterIn`);
     }
 
-    async getPieSlice(name) {
+    async getPieSlice(name: string) {
       return await testSubjects.find(`pieSlice-${name.split(' ').join('-')}`);
     }
 
-    async getAllPieSlices(name) {
+    async getAllPieSlices(name: string) {
       return await testSubjects.findAll(`pieSlice-${name.split(' ').join('-')}`);
     }
 
-    async getPieSliceStyle(name) {
+    async getPieSliceStyle(name: string) {
       log.debug(`VisualizePage.getPieSliceStyle(${name})`);
       const pieSlice = await this.getPieSlice(name);
       return await pieSlice.getAttribute('style');
     }
 
-    async getAllPieSliceStyles(name) {
+    async getAllPieSliceStyles(name: string) {
       log.debug(`VisualizePage.getAllPieSliceStyles(${name})`);
       const pieSlices = await this.getAllPieSlices(name);
       return await Promise.all(
@@ -78,7 +80,7 @@ export function PieChartProvider({ getService }) {
       return await Promise.all(getChartTypesPromises);
     }
 
-    async expectPieChartTableData(expectedTableData) {
+    async expectPieChartTableData(expectedTableData: string[][]) {
       await inspector.open();
       await inspector.setTablePageSize(50);
       await inspector.expectTableData(expectedTableData);
@@ -101,7 +103,7 @@ export function PieChartProvider({ getService }) {
       });
     }
 
-    async expectPieSliceCount(expectedCount) {
+    async expectPieSliceCount(expectedCount: number) {
       log.debug(`PieChart.expectPieSliceCount(${expectedCount})`);
       await retry.try(async () => {
         const slicesCount = await this.getPieSliceCount();
@@ -109,12 +111,14 @@ export function PieChartProvider({ getService }) {
       });
     }
 
-    async expectPieChartLabels(expectedLabels) {
+    async expectPieChartLabels(expectedLabels: string[]) {
       log.debug(`PieChart.expectPieChartLabels(${expectedLabels.join(',')})`);
       await retry.try(async () => {
         const pieData = await this.getPieChartLabels();
         expect(pieData).to.eql(expectedLabels);
       });
     }
-  })();
+  }
+
+  return new PieChart();
 }
