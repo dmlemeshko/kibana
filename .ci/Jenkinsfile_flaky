@@ -70,6 +70,16 @@ def getWorkerFromParams(isXpack, job, ciGroup) {
           "run `node scripts/mocha`"
         )
       })
+    } else if (job == 'jest') {
+      return kibanaPipeline.functionalTestProcess('jest', {
+        kibanaPipeline.bash(
+          """
+            source src/dev/ci_setup/setup_env.sh
+            node scripts/jest --ci --verbose
+          """,
+          "run `node scripts/jest`"
+        )
+      })
     } else if (job == 'firefoxSmoke') {
       return kibanaPipeline.functionalTestProcess('firefoxSmoke', './test/scripts/jenkins_firefox_smoke.sh')
     } else if(job == 'visualRegression') {
@@ -81,7 +91,19 @@ def getWorkerFromParams(isXpack, job, ciGroup) {
 
   if (job == 'firefoxSmoke') {
     return kibanaPipeline.functionalTestProcess('xpack-firefoxSmoke', './test/scripts/jenkins_xpack_firefox_smoke.sh')
-  } else if(job == 'visualRegression') {
+  } else if (job == 'jest') {
+      return kibanaPipeline.functionalTestProcess('jest', {
+        kibanaPipeline.bash(
+          """
+            source test/scripts/jenkins_test_setup.sh
+            cd x-pack
+            node --max-old-space-size=6144 scripts/jest --ci --verbose --detectOpenHandles
+          """,
+          "run `node scripts/jest`"
+        )
+      })
+  }
+  else if(job == 'visualRegression') {
     return kibanaPipeline.functionalTestProcess('xpack-visualRegression', './test/scripts/jenkins_xpack_visual_regression.sh')
   } else {
     return kibanaPipeline.xpackCiGroupProcess(ciGroup)
