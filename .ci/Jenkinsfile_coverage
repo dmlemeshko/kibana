@@ -50,9 +50,10 @@ kibanaPipeline(timeoutMinutes: 180) {
           '''
             # bootstrap from x-pack folder
             source src/dev/ci_setup/setup_env.sh
-            cd x-pack
+            # cd x-pack
+            echo bootstrap from root
             yarn kbn bootstrap --prefer-offline
-            cd ..
+            # cd ..
             # extract archives
             mkdir -p /tmp/extracted_coverage
             echo extracting intakes
