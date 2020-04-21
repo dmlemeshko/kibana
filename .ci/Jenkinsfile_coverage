@@ -44,49 +44,49 @@ kibanaPipeline(timeoutMinutes: 180) {
           'xpack-ciGroup10': kibanaPipeline.xpackCiGroupProcess(10),
         ]),
       ])
-      workers.base(name: 'coverage-worker', size: 'l', ramDisk: false, bootstrapped: false) {
-        kibanaPipeline.downloadCoverageArtifacts()
-        kibanaPipeline.bash(
-          '''
-            # bootstrap from x-pack folder
-            source src/dev/ci_setup/setup_env.sh
-            cd x-pack
-            yarn kbn bootstrap --prefer-offline
-            cd ..
-            # extract archives
-            mkdir -p /tmp/extracted_coverage
-            echo extracting intakes
-            tar -xzf /tmp/downloaded_coverage/coverage/kibana-intake/kibana-coverage.tar.gz -C /tmp/extracted_coverage
-            tar -xzf /tmp/downloaded_coverage/coverage/x-pack-intake/kibana-coverage.tar.gz -C /tmp/extracted_coverage
-            echo extracting kibana-oss-tests
-            tar -xzf /tmp/downloaded_coverage/coverage/kibana-oss-tests/kibana-coverage.tar.gz -C /tmp/extracted_coverage
-            echo extracting kibana-xpack-tests
-            tar -xzf /tmp/downloaded_coverage/coverage/kibana-xpack-tests/kibana-coverage.tar.gz -C /tmp/extracted_coverage
-            # replace path in json files to have valid html report
-            pwd=$(pwd)
-            du -sh /tmp/extracted_coverage/target/kibana-coverage/
-            echo replacing path in json files
-            for i in {1..9}; do
-              sed -i "s|/dev/shm/workspace/kibana|$pwd|g" /tmp/extracted_coverage/target/kibana-coverage/functional/${i}*.json &
-            done
-            wait
-            # merge oss & x-pack reports
-            echo merging coverage reports
-            yarn nyc report --temp-dir /tmp/extracted_coverage/target/kibana-coverage/jest --report-dir target/kibana-coverage/jest-combined --reporter=html --reporter=json-summary
-            yarn nyc report --temp-dir /tmp/extracted_coverage/target/kibana-coverage/functional --report-dir target/kibana-coverage/functional-combined --reporter=html --reporter=json-summary
-            echo copy mocha reports
-            mkdir -p target/kibana-coverage/mocha-combined
-            cp -r /tmp/extracted_coverage/target/kibana-coverage/mocha target/kibana-coverage/mocha-combined
-          ''',
-          "run `yarn kbn bootstrap && merge coverage`"
-        )
-        sh 'tar -czf kibana-jest-coverage.tar.gz target/kibana-coverage/jest-combined/*'
-        kibanaPipeline.uploadCoverageArtifacts("coverage/jest-combined", 'kibana-jest-coverage.tar.gz')
-        sh 'tar -czf kibana-functional-coverage.tar.gz target/kibana-coverage/functional-combined/*'
-        kibanaPipeline.uploadCoverageArtifacts("coverage/functional-combined", 'kibana-functional-coverage.tar.gz')
-        sh 'tar -czf kibana-mocha-coverage.tar.gz target/kibana-coverage/mocha-combined/*'
-        kibanaPipeline.uploadCoverageArtifacts("coverage/mocha-combined", 'kibana-mocha-coverage.tar.gz')
-      }
+      // workers.base(name: 'coverage-worker', size: 'l', ramDisk: false, bootstrapped: false) {
+      //   kibanaPipeline.downloadCoverageArtifacts()
+      //   kibanaPipeline.bash(
+      //     '''
+      //       # bootstrap from x-pack folder
+      //       source src/dev/ci_setup/setup_env.sh
+      //       cd x-pack
+      //       yarn kbn bootstrap --prefer-offline
+      //       cd ..
+      //       # extract archives
+      //       mkdir -p /tmp/extracted_coverage
+      //       echo extracting intakes
+      //       tar -xzf /tmp/downloaded_coverage/coverage/kibana-intake/kibana-coverage.tar.gz -C /tmp/extracted_coverage
+      //       tar -xzf /tmp/downloaded_coverage/coverage/x-pack-intake/kibana-coverage.tar.gz -C /tmp/extracted_coverage
+      //       echo extracting kibana-oss-tests
+      //       tar -xzf /tmp/downloaded_coverage/coverage/kibana-oss-tests/kibana-coverage.tar.gz -C /tmp/extracted_coverage
+      //       echo extracting kibana-xpack-tests
+      //       tar -xzf /tmp/downloaded_coverage/coverage/kibana-xpack-tests/kibana-coverage.tar.gz -C /tmp/extracted_coverage
+      //       # replace path in json files to have valid html report
+      //       pwd=$(pwd)
+      //       du -sh /tmp/extracted_coverage/target/kibana-coverage/
+      //       echo replacing path in json files
+      //       for i in {1..9}; do
+      //         sed -i "s|/dev/shm/workspace/kibana|$pwd|g" /tmp/extracted_coverage/target/kibana-coverage/functional/${i}*.json &
+      //       done
+      //       wait
+      //       # merge oss & x-pack reports
+      //       echo merging coverage reports
+      //       yarn nyc report --temp-dir /tmp/extracted_coverage/target/kibana-coverage/jest --report-dir target/kibana-coverage/jest-combined --reporter=html --reporter=json-summary
+      //       yarn nyc report --temp-dir /tmp/extracted_coverage/target/kibana-coverage/functional --report-dir target/kibana-coverage/functional-combined --reporter=html --reporter=json-summary
+      //       echo copy mocha reports
+      //       mkdir -p target/kibana-coverage/mocha-combined
+      //       cp -r /tmp/extracted_coverage/target/kibana-coverage/mocha target/kibana-coverage/mocha-combined
+      //     ''',
+      //     "run `yarn kbn bootstrap && merge coverage`"
+      //   )
+      //   sh 'tar -czf kibana-jest-coverage.tar.gz target/kibana-coverage/jest-combined/*'
+      //   kibanaPipeline.uploadCoverageArtifacts("coverage/jest-combined", 'kibana-jest-coverage.tar.gz')
+      //   sh 'tar -czf kibana-functional-coverage.tar.gz target/kibana-coverage/functional-combined/*'
+      //   kibanaPipeline.uploadCoverageArtifacts("coverage/functional-combined", 'kibana-functional-coverage.tar.gz')
+      //   sh 'tar -czf kibana-mocha-coverage.tar.gz target/kibana-coverage/mocha-combined/*'
+      //   kibanaPipeline.uploadCoverageArtifacts("coverage/mocha-combined", 'kibana-mocha-coverage.tar.gz')
+      // }
     }
   }
   kibanaPipeline.sendMail()
