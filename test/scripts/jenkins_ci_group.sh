@@ -31,4 +31,11 @@ else
     mkdir -p ../kibana/target/kibana-coverage/functional
     mv target/kibana-coverage/functional/* ../kibana/target/kibana-coverage/functional/
   fi
+
+  # copy junit reports
+  if [[ -d target/junit ]]; then
+    echo " -> copying junit folder to the kibana root"
+    mkdir -p ../kibana/target/junit
+    mv target/junit/* ../kibana/target/junit/
+  fi
 fi
