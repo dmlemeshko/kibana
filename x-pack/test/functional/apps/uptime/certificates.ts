@@ -14,7 +14,8 @@ export default ({ getPageObjects, getService }: FtrProviderContext) => {
 
   const es = getService('es');
 
-  describe('certificate page', function() {
+  // FLAKY: https://github.com/elastic/kibana/issues/65010
+  describe.skip('certificate page', function() {
     before(async () => {
       await uptime.goToRoot(true);
     });
@@ -25,7 +26,6 @@ export default ({ getPageObjects, getService }: FtrProviderContext) => {
     });
 
     it('can navigate to cert page', async () => {
-      await uptimeService.navigation.refreshApp();
       await uptimeService.cert.hasViewCertButton();
       await uptimeService.navigation.goToCertificates();
     });
