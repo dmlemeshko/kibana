@@ -1,6 +1,7 @@
 #!/bin/bash
 
 COVERAGE_TEMP_DIR=/tmp/extracted_coverage/target/kibana-coverage/
+export COVERAGE_TEMP_DIR
 
 echo "### Merge coverage reports"
 for x in jest functional; do
