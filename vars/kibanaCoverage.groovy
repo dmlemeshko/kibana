@@ -2,7 +2,7 @@ def uploadCoverageStaticSite(timestamp) {
   def uploadPrefix = "gs://elastic-bekitzur-kibana-coverage-live/"
   def uploadPrefixWithTimeStamp = "${uploadPrefix}${timestamp}/"
 
-  // uploadBaseWebsiteFiles(uploadPrefix)
+  uploadBaseWebsiteFiles(uploadPrefix)
   uploadCoverageHtmls(uploadPrefixWithTimeStamp)
 }
 
