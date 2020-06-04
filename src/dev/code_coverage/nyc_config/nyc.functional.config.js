@@ -17,8 +17,8 @@
  * under the License.
  */
 
-const defaultExclude = require('@istanbuljs/schema/default-exclude');
-const extraExclude = ['data/optimize/**', 'src/core/server/**', '**/test/**'];
+// const defaultExclude = require('@istanbuljs/schema/default-exclude');
+// const extraExclude = ['data/optimize/**', 'src/core/server/**', '**/test/**'];
 const path = require('path');
 
 module.exports = {
@@ -27,5 +27,5 @@ module.exports = {
     : 'target/kibana-coverage/functional',
   'report-dir': 'target/kibana-coverage/functional-combined',
   reporter: ['html', 'json-summary'],
-  exclude: extraExclude.concat(defaultExclude),
+  // exclude: extraExclude.concat(defaultExclude),
 };
