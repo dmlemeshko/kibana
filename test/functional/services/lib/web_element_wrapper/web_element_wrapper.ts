@@ -144,16 +144,14 @@ export class WebElementWrapper {
   }
 
   /**
-   * Returns whether or not the element would be visible to an actual user. This means
-   * that the following types of elements are considered to be not displayed:
-   *
+   * Return true if the selected DOM-element is displayed.
    *  - Elements with display: none
    *  - Elements with visibility: hidden
    *  - Elements positioned outside of the viewport that cannot be scrolled into view
    *  - Elements with opacity: 0
    *  - Elements with no offsetWidth or offsetHeight
    *
-   * https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html#isDisplayed
+   * https://webdriver.io/docs/api/element/isDisplayed.html
    *
    * @return {Promise<boolean>}
    */
@@ -165,8 +163,7 @@ export class WebElementWrapper {
 
   /**
    * Tests whether this element is enabled, as dictated by the disabled attribute.
-   * https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html#isEnabled
-   *
+   * https://webdriver.io/docs/api/element/isEnabled.html
    * @return {Promise<boolean>}
    */
   public async isEnabled() {
@@ -176,8 +173,8 @@ export class WebElementWrapper {
   }
 
   /**
-   * Tests whether this element is selected.
-   * https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html#isSelected
+   * Return true or false if the selected DOM-element is enabled.
+   * https://webdriver.io/docs/api/element/isSelected.html
    *
    * @return {Promise<boolean>}
    */
@@ -189,8 +186,7 @@ export class WebElementWrapper {
 
   /**
    * Clicks on this element.
-   * https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebElement.html#click
-   *
+   * https://webdriver.io/docs/api/element/click.html   *
    * @return {Promise<void>}
    */
   public async click() {
