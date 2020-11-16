@@ -23,6 +23,8 @@ import { KibanaRequest } from '../../../core/server';
 import { AppBootstrap } from './bootstrap';
 import { getApmConfig } from '../apm';
 
+const IS_CODE_COVERAGE = !!process.env.CODE_COVERAGE;
+
 /**
  * @typedef {import('../../server/kbn_server').default} KbnServer
  * @typedef {import('../../server/kbn_server').ResponseToolkit} ResponseToolkit
@@ -126,6 +128,7 @@ export function uiRenderMixin(kbnServer, server, config) {
           styleSheetPaths,
           publicPathMap,
         },
+        collectCoverage: IS_CODE_COVERAGE,
       });
 
       const body = await bootstrap.getJsFile();

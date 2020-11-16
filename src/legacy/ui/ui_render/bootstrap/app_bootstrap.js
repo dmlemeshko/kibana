@@ -25,14 +25,15 @@ import { resolve } from 'path';
 import { kbnBundlesLoaderSource } from './kbn_bundles_loader_source';
 
 export class AppBootstrap {
-  constructor({ templateData }) {
+  constructor({ templateData, collectCoverage }) {
     this.templateData = { ...templateData, kbnBundlesLoaderSource };
     this._rawTemplate = undefined;
+    this._collectCoverage = collectCoverage;
   }
 
   async getJsFile() {
     if (!this._rawTemplate) {
-      this._rawTemplate = await loadRawTemplate();
+      this._rawTemplate = await loadRawTemplate(this._collectCoverage);
     }
 
     const template = Handlebars.compile(this._rawTemplate, {
@@ -52,8 +53,11 @@ export class AppBootstrap {
   }
 }
 
-function loadRawTemplate() {
-  const templatePath = resolve(__dirname, 'template.js.hbs');
+function loadRawTemplate(collectCoverage) {
+  const templatePath = resolve(
+    __dirname,
+    collectCoverage ? 'template_code_coverage.js.hbs' : 'template.js.hbs'
+  );
   return readFileAsync(templatePath);
 }
 
