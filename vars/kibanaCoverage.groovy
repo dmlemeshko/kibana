@@ -60,7 +60,7 @@ def uploadCoverageHtmls(prefix) {
   [
     'target/kibana-coverage/functional-combined',
     'target/kibana-coverage/jest-combined',
-    'target/kibana-coverage/mocha-combined',
+    // 'target/kibana-coverage/mocha-combined',
   ].each { uploadWithVault(prefix, it) }
 }
 
@@ -151,7 +151,7 @@ def generateReports(title) {
     . src/dev/code_coverage/shell_scripts/extract_archives.sh
     . src/dev/code_coverage/shell_scripts/fix_html_reports_parallel.sh
     . src/dev/code_coverage/shell_scripts/merge_jest_and_functional.sh
-    . src/dev/code_coverage/shell_scripts/copy_mocha_reports.sh
+    # . src/dev/code_coverage/shell_scripts/copy_mocha_reports.sh
     # zip combined reports
     tar -czf kibana-coverage.tar.gz target/kibana-coverage/**/*
   """, title)
