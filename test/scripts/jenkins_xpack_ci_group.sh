@@ -23,7 +23,7 @@ else
   cd "kibana${CI_GROUP}/x-pack"
 
   echo " -> running tests from the clone folder"
-  node scripts/functional_tests --debug --include-tag "ciGroup$CI_GROUP"  --exclude-tag "skipCoverage" || true;
+  node scripts/functional_tests_coverage --debug --include-tag "ciGroup$CI_GROUP"  --exclude-tag "skipCoverage" || true;
 
   echo " -> moving junit output, silently fail in case of no report"
   mkdir -p ../../kibana/target/junit
