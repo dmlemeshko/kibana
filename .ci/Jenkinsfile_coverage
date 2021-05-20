@@ -17,7 +17,7 @@ kibanaPipeline(timeoutMinutes: 300) {
             echo '${TIME_STAMP}'
           """, "### Print Canonical Time Stamp")
 
-          kibanaCoverage.runTests()
+          kibanaCoverage.allCoverageTasks()
           handleIngestion(TIME_STAMP)
         }
         handleFail()
