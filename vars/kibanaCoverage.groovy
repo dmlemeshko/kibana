@@ -197,7 +197,11 @@ def prepareKibana() {
 
 def runTests() {
   parallel([
-    'kibana-intake-agent': workers.intake('kibana-intake', './test/scripts/jenkins_unit.sh'),
+    'kibana-intake-agent': workers.ci(name: 'jest', size: 'n2-standard-16', ramDisk: false) {
+        catchErrors {
+          scriptTask('Jest Unit Tests', 'test/scripts/test/jest_unit.sh')()
+        }
+    },
     'kibana-oss-agent'   : workers.functional(
       'kibana-oss-tests',
       { prepareKibana() },
