@@ -19,17 +19,18 @@ export default function ecommerceDashboard({ getService }: FtrProviderContext) {
           {
             name: 'Login',
             handler: async ({ page, kibanaUrl }: StepCtx) => {
-              await page.goto(`${kibanaUrl}`);
+              await page.goto(`${kibanaUrl}`, { waitUntil: 'networkidle' });
+              await page.waitForSelector('[data-test-subj=loginSubmit]');
 
-              const usernameLocator = page.locator('[data-test-subj=loginUsername]');
-              const passwordLocator = page.locator('[data-test-subj=loginPassword]');
-              const submitButtonLocator = page.locator('[data-test-subj=loginSubmit]');
+              // const usernameLocator = page.locator('[data-test-subj=loginUsername]');
+              // const passwordLocator = page.locator('[data-test-subj=loginPassword]');
+              // const submitButtonLocator = page.locator('[data-test-subj=loginSubmit]');
 
-              await usernameLocator?.type('elastic', { delay: inputDelays.TYPING });
-              await passwordLocator?.type('changeme', { delay: inputDelays.TYPING });
-              await submitButtonLocator?.click({ delay: inputDelays.MOUSE_CLICK });
+              // await usernameLocator?.type('elastic', { delay: inputDelays.TYPING });
+              // await passwordLocator?.type('changeme', { delay: inputDelays.TYPING });
+              // await submitButtonLocator?.click({ delay: inputDelays.MOUSE_CLICK });
 
-              await page.waitForSelector('#headerUserMenu');
+              // await page.waitForSelector('#headerUserMenu');
             },
           },
         ],

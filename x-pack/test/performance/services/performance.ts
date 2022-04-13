@@ -167,6 +167,7 @@ export class PerformanceTestingService extends FtrService {
   private async tearDown(page: Page, client: CDPSession, context: BrowserContext) {
     if (page) {
       apm.flush();
+      await page.waitForTimeout(10000);
       await client.detach();
       await page.close();
       await context.close();
