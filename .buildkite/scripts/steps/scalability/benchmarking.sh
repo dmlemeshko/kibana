@@ -16,7 +16,7 @@ mkdir gcs_artefacts
 gsutil cp "$GCS_BUCKET/LATEST" gcs_artefacts/
 ls -la
 HASH=`cat gcs_artefacts/LATEST`
-gsutil cp "$GCS_BUCKET/$HASH" gcs_artefacts/
+gsutil cp -r "$GCS_BUCKET/$HASH" gcs_artefacts/
 
 ls -la "gcs_artefacts/$HASH"
 
