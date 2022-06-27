@@ -9,13 +9,14 @@ source .buildkite/scripts/common/util.sh
 # These tests are running on static workers so we have to make sure we delete previous build of Kibana
 rm -rf "$KIBANA_BUILD_LOCATION"
 
+echo "--- downloading latest artefacts from single user performance run"
+
 GCS_BUCKET="gs://kibana-performance/scalability-tests"
-FILENAME = "LATEST"
 mkdir gcs_artefacts
-gsutil cp "$GCS_BUCKET/$FILENAME" gcs_artefacts
+gsutil cp "$GCS_BUCKET/LATEST" gcs_artefacts/
 ls -la
-HASH=`cat gcs_artefacts/$FILENAME`
-gsutil cp "$GCS_BUCKET/$HASH" gcs_artefacts
+HASH=`cat gcs_artefacts/LATEST`
+gsutil cp "$GCS_BUCKET/$HASH" gcs_artefacts/
 
 ls -la "gcs_artefacts/$HASH"
 
