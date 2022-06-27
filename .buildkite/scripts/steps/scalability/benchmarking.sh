@@ -10,12 +10,14 @@ source .buildkite/scripts/common/util.sh
 rm -rf "$KIBANA_BUILD_LOCATION"
 
 GCS_BUCKET="gs://kibana-performance/scalability-tests"
-gsutil cp "$GCS_BUCKET/LATEST" .
+FILENAME = "LATEST"
+mkdir gcs_artefacts
+gsutil cp "$GCS_BUCKET/$FILENAME" gcs_artefacts
 ls -la
-HASH=`cat scalability-tests_LATEST`
-gsutil cp "$GCS_BUCKET/$HASH" .
+HASH=`cat gcs_artefacts/$FILENAME`
+gsutil cp "$GCS_BUCKET/$HASH" gcs_artefacts
 
-ls -la $HASH
+ls -la "gcs_artefacts/$HASH"
 
 # unset env vars defined in other parts of CI for automatic APM collection of
 # Kibana. We manage APM config in our FTR config and performance service, and
