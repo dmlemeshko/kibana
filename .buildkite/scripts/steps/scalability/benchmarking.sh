@@ -11,6 +11,7 @@ rm -rf "$KIBANA_BUILD_LOCATION"
 
 GCS_BUCKET="gs://kibana-performance/scalability-tests"
 gsutil cp "$GCS_BUCKET/LATEST" .
+ls -la
 HASH=`cat scalability-tests_LATEST`
 gsutil cp "$GCS_BUCKET/$HASH" .
 
