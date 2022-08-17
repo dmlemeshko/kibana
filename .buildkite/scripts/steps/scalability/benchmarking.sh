@@ -9,24 +9,27 @@ source .buildkite/scripts/common/util.sh
 # These tests are running on static workers so we have to make sure we delete previous build of Kibana
 rm -rf "$KIBANA_BUILD_LOCATION"
 
+echo "--- cd to WORKSPACE"
+
+cd "$WORKSPACE"
+
+ls -la
+
 echo "--- downloading latest hash"
 
 GCS_BUCKET="gs://kibana-performance/scalability-tests"
 # mkdir gcs_artefacts
-gsutil cp "$GCS_BUCKET/LATEST" .
+gsutil cp "$GCS_BUCKET/LATEST" "$WORKSPACE"
 HASH=`cat LATEST`
 
 echo "--- downloading latest artefacts from single user performance run"
-gsutil cp -r "$GCS_BUCKET/$HASH" .
+gsutil cp -r "$GCS_BUCKET/$HASH" "$WORKSPACE"
 
 ls -la
 
-echo "--- creating $KIBANA_BUILD_LOCATION"
+echo "--- creating $KIBANA_BUILD_LOCATION & unziping kibana build"
 
 mkdir -p "$KIBANA_BUILD_LOCATION"
-
-echo "--- unzip kibana build"
-
 tar -xzf kibana-default.tar.gz -C "$KIBANA_BUILD_LOCATION" --strip=1
 
 cd "$KIBANA_DIR"
@@ -66,9 +69,9 @@ echo "--- Cloning kibana-load-testing repo and preparing workspace"
 
 tar -xzf ../scalability_traces.tar.gz
 
-# node scripts/functional_tests \
-#   --config x-pack/test/performance/scalability/config.ts \
-#   --kibana-install-dir "$KIBANA_BUILD_LOCATION" \
-#   --debug \
-#   --bail
+node scripts/functional_tests \
+  --config x-pack/test/performance/scalability/config.ts \
+  --kibana-install-dir "$KIBANA_BUILD_LOCATION" \
+  --debug \
+  --bail
 
