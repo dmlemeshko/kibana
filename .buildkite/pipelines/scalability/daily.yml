@@ -1,4 +1,8 @@
 steps:
+  - label: ':muscle: Clone and Build kibana-load-testing'
+    command: .buildkite/scripts/steps/scalability/build_runner.sh
+    agents:
+      queue: kibana-default
   - label: ':muscle: Scalability Tests'
     command: .buildkite/scripts/steps/scalability/benchmarking.sh
     agents:
