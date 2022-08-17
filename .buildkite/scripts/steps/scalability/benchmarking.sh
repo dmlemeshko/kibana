@@ -13,12 +13,9 @@ echo "--- downloading latest artefacts from single user performance run"
 
 GCS_BUCKET="gs://kibana-performance/scalability-tests"
 # mkdir gcs_artefacts
-# gsutil cp "$GCS_BUCKET/LATEST" gcs_artefacts/
-# ls -la
-HASH=`cat gcs_artefacts/LATEST`
+gsutil cp "$GCS_BUCKET/LATEST" .
+HASH=`cat LATEST`
 gsutil cp -r "$GCS_BUCKET/$HASH" .
-
-# ls -la "gcs_artefacts/$HASH"
 
 echo "--- creating $KIBANA_BUILD_LOCATION"
 
