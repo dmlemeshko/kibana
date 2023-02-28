@@ -9,7 +9,7 @@
 import { run } from '@kbn/dev-cli-runner';
 
 import { initLogsDir } from '../lib/logs_dir';
-import { runTests } from './run_tests';
+import { runPerfTests } from './run_performance_tests';
 import { parseFlags, FLAG_OPTIONS } from './flags';
 
 export function runTestsCli() {
@@ -21,7 +21,7 @@ export function runTestsCli() {
         initLogsDir(log, options.logsDir);
       }
 
-      await runTests(log, options);
+      await runPerfTests(log, options);
     },
     {
       description: `Run Functional Tests`,

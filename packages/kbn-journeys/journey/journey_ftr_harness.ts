@@ -57,6 +57,11 @@ export class JourneyFtrHarness {
   private async setupApm() {
     const kbnTestServerEnv = this.config.get(`kbnTestServer.env`);
 
+    if (apmNode.isStarted()) {
+      this.log.error('APM is already started!!!!');
+      return;
+    }
+
     this.apm = apmNode.start({
       serviceName: 'functional test runner',
       environment: process.env.CI ? 'ci' : 'development',

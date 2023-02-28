@@ -23,7 +23,7 @@ import { RunTestsOptions } from './flags';
 /**
  * Run servers and tests for each config
  */
-export async function runTests(log: ToolingLog, options: RunTestsOptions) {
+export async function runPerfTests(log: ToolingLog, options: RunTestsOptions) {
   if (!process.env.CI) {
     log.warning('❗️❗️❗️');
     log.warning('❗️❗️❗️');
@@ -121,20 +121,58 @@ export async function runTests(log: ToolingLog, options: RunTestsOptions) {
 
           process.env.TEST_PERFORMANCE_PHASE = 'WARMUP';
           // warmup
-          await startKibana(procs, config, onEarlyExit);
+          const baseConfig = config.getAll();
+          const warmupConfig: Config = {
+            ...baseConfig,
+            kbnTestServer: {
+              ...baseConfig.kibanaServer,
+              env: {
+                // Reset all the ELASTIC APM env vars to undefined, FTR config might set it's own values.
+                ...Object.fromEntries(
+                  Object.keys(process.env).flatMap((k) =>
+                    k.startsWith('ELASTIC_APM_') ? [[k, undefined]] : []
+                  )
+                ),
+                TEST_PERFORMANCE_PHASE: 'WARMUP',
+                // TEST_ES_URL: 'http://elastic:changeme@localhost:9200',
+                // TEST_ES_DISABLE_STARTUP: 'true',
+              },
+            },
+          };
+          await startKibana(procs, warmupConfig, onEarlyExit);
           if (abortCtrl.signal.aborted) {
             return;
           }
-          await runTest(config, abortCtrl.signal);
-
+          await runTest(warmupConfig, abortCtrl.signal);
+          log.debug('stopping Kibana');
+          await procs.stop('kibana', 'SIGKILL');
+          await procs.stop('apmNode', 'SIGKILL');
+          log.debug('Kibana should be stopped');
           process.env.TEST_PERFORMANCE_PHASE = 'TEST';
 
           // test
-          await startKibana(procs, config, onEarlyExit);
+          const testConfig: Config = {
+            ...baseConfig,
+            kbnTestServer: {
+              ...baseConfig.kibanaServer,
+              env: {
+                // Reset all the ELASTIC APM env vars to undefined, FTR config might set it's own values.
+                ...Object.fromEntries(
+                  Object.keys(process.env).flatMap((k) =>
+                    k.startsWith('ELASTIC_APM_') ? [[k, undefined]] : []
+                  )
+                ),
+                TEST_PERFORMANCE_PHASE: 'TEST',
+                // TEST_ES_URL: 'http://elastic:changeme@localhost:9200',
+                // TEST_ES_DISABLE_STARTUP: 'true',
+              },
+            },
+          };
+          await startKibana(procs, testConfig, onEarlyExit);
           if (abortCtrl.signal.aborted) {
             return;
           }
-          await runTest(config, abortCtrl.signal);
+          await runTest(testConfig, abortCtrl.signal);
         } finally {
           try {
             const delay = config.get('kbnTestServer.delayShutdown');
