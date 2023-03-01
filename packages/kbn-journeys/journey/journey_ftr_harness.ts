@@ -208,6 +208,7 @@ export class JourneyFtrHarness {
         await this.kibanaServer.importExport.unload(kbnArchive);
       }),
     ]);
+    apmNode.destroy();
   }
 
   private async onStepSuccess(step: AnyStep) {

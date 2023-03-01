@@ -121,29 +121,29 @@ export async function runPerfTests(log: ToolingLog, options: RunTestsOptions) {
 
           process.env.TEST_PERFORMANCE_PHASE = 'WARMUP';
           // warmup
-          const baseConfig = config.getAll();
-          const warmupConfig: Config = {
-            ...baseConfig,
-            kbnTestServer: {
-              ...baseConfig.kibanaServer,
-              env: {
-                // Reset all the ELASTIC APM env vars to undefined, FTR config might set it's own values.
-                ...Object.fromEntries(
-                  Object.keys(process.env).flatMap((k) =>
-                    k.startsWith('ELASTIC_APM_') ? [[k, undefined]] : []
-                  )
-                ),
-                TEST_PERFORMANCE_PHASE: 'WARMUP',
-                // TEST_ES_URL: 'http://elastic:changeme@localhost:9200',
-                // TEST_ES_DISABLE_STARTUP: 'true',
-              },
-            },
-          };
-          await startKibana(procs, warmupConfig, onEarlyExit);
+          // const baseConfig = config.getAll();
+          // const warmupConfig: Config = {
+          //   ...baseConfig,
+          //   kbnTestServer: {
+          //     ...baseConfig.kibanaServer,
+          //     env: {
+          //       // Reset all the ELASTIC APM env vars to undefined, FTR config might set it's own values.
+          //       ...Object.fromEntries(
+          //         Object.keys(process.env).flatMap((k) =>
+          //           k.startsWith('ELASTIC_APM_') ? [[k, undefined]] : []
+          //         )
+          //       ),
+          //       TEST_PERFORMANCE_PHASE: 'WARMUP',
+          //       // TEST_ES_URL: 'http://elastic:changeme@localhost:9200',
+          //       // TEST_ES_DISABLE_STARTUP: 'true',
+          //     },
+          //   },
+          // };
+          await startKibana(procs, config, onEarlyExit);
           if (abortCtrl.signal.aborted) {
             return;
           }
-          await runTest(warmupConfig, abortCtrl.signal);
+          await runTest(config, abortCtrl.signal);
           log.debug('stopping Kibana');
           await procs.stop('kibana', 'SIGKILL');
           await procs.stop('apmNode', 'SIGKILL');
@@ -151,28 +151,28 @@ export async function runPerfTests(log: ToolingLog, options: RunTestsOptions) {
           process.env.TEST_PERFORMANCE_PHASE = 'TEST';
 
           // test
-          const testConfig: Config = {
-            ...baseConfig,
-            kbnTestServer: {
-              ...baseConfig.kibanaServer,
-              env: {
-                // Reset all the ELASTIC APM env vars to undefined, FTR config might set it's own values.
-                ...Object.fromEntries(
-                  Object.keys(process.env).flatMap((k) =>
-                    k.startsWith('ELASTIC_APM_') ? [[k, undefined]] : []
-                  )
-                ),
-                TEST_PERFORMANCE_PHASE: 'TEST',
-                // TEST_ES_URL: 'http://elastic:changeme@localhost:9200',
-                // TEST_ES_DISABLE_STARTUP: 'true',
-              },
-            },
-          };
-          await startKibana(procs, testConfig, onEarlyExit);
+          // const testConfig: Config = {
+          //   ...baseConfig,
+          //   kbnTestServer: {
+          //     ...baseConfig.kibanaServer,
+          //     env: {
+          //       // Reset all the ELASTIC APM env vars to undefined, FTR config might set it's own values.
+          //       ...Object.fromEntries(
+          //         Object.keys(process.env).flatMap((k) =>
+          //           k.startsWith('ELASTIC_APM_') ? [[k, undefined]] : []
+          //         )
+          //       ),
+          //       TEST_PERFORMANCE_PHASE: 'TEST',
+          //       // TEST_ES_URL: 'http://elastic:changeme@localhost:9200',
+          //       // TEST_ES_DISABLE_STARTUP: 'true',
+          //     },
+          //   },
+          // };
+          await startKibana(procs, config, onEarlyExit);
           if (abortCtrl.signal.aborted) {
             return;
           }
-          await runTest(testConfig, abortCtrl.signal);
+          await runTest(config, abortCtrl.signal);
         } finally {
           try {
             const delay = config.get('kbnTestServer.delayShutdown');
