@@ -46,7 +46,7 @@ export default function ({ getService }: FtrProviderContext) {
   const supertest = getService('supertest');
 
   // FLAKY: https://github.com/elastic/kibana/issues/133259
-  describe.skip('Packs', () => {
+  describe('Packs', () => {
     let packId: string = '';
     let hostedPolicy: Record<string, any>;
     let packagePolicyId: string;
