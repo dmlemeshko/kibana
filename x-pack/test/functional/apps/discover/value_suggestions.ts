@@ -91,9 +91,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
 
           // navigate to context
           await dataGrid.clickRowToggle({ rowIndex: 0 });
-          const rowActions = await dataGrid.getRowActions({ rowIndex: 0 });
-          await rowActions[1].click();
-          await PageObjects.context.waitUntilContextLoadingHasFinished();
+          await dataGrid.openSurroundingDocumentsView({ rowIndex: 0 });
 
           // Apply filter in context view
           await filterBar.addFilter({ field: 'geo.dest', operation: 'is', value: 'US' });

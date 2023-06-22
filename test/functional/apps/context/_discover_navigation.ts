@@ -74,9 +74,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
         // navigate to the context view
         await dataGrid.clickRowToggle({ rowIndex: 0 });
 
-        const rowActions = await dataGrid.getRowActions({ rowIndex: 0 });
-        await rowActions[1].click();
-        await PageObjects.context.waitUntilContextLoadingHasFinished();
+        await dataGrid.openSurroundingDocumentsView();
         const anchorTimestamp = await getTimestamp(true);
         return anchorTimestamp === firstDiscoverTimestamp;
       });
@@ -86,9 +84,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
         const firstContextTimestamp = await getTimestamp(false);
         await dataGrid.clickRowToggle({ rowIndex: 0 });
 
-        const rowActions = await dataGrid.getRowActions({ rowIndex: 0 });
-        await rowActions[1].click();
-        await PageObjects.context.waitUntilContextLoadingHasFinished();
+        await dataGrid.openSurroundingDocumentsView();
         const anchorTimestamp = await getTimestamp(true);
         return anchorTimestamp === firstContextTimestamp;
       });
@@ -113,13 +109,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
       await PageObjects.context.waitUntilContextLoadingHasFinished();
 
       // click the open action
-      await retry.try(async () => {
-        const rowActions = await dataGrid.getRowActions({ rowIndex: 0 });
-        if (!rowActions.length) {
-          throw new Error('row actions empty, trying again');
-        }
-        await rowActions[0].click();
-      });
+      await dataGrid.openSingleDocumentView();
 
       const hasDocHit = await testSubjects.exists('doc-hit');
       expect(hasDocHit).to.be(true);
@@ -142,8 +132,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
       await PageObjects.header.waitUntilLoadingHasFinished();
 
       await dataGrid.clickRowToggle({ rowIndex: 0 });
-      const rowActions = await dataGrid.getRowActions({ rowIndex: 0 });
-      await rowActions[0].click();
+      await dataGrid.openSingleDocumentView();
       await PageObjects.common.sleep(250);
 
       // close popup

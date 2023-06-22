@@ -233,11 +233,29 @@ export class DataGridService extends FtrService {
     return Promise.resolve(textArr);
   }
 
-  public async getRowActions(
+  // public async getRowActions(
+  //   options: SelectOptions = { isAnchorRow: false, rowIndex: 0 }
+  // ): Promise<WebElementWrapper[]> {
+  //   const detailsRow = (await this.getDetailsRows())[options.rowIndex || 0];
+  //   return await detailsRow.findAllByTestSubject('~docTableRowAction');
+  // }
+
+  public async openSingleDocumentView(
     options: SelectOptions = { isAnchorRow: false, rowIndex: 0 }
-  ): Promise<WebElementWrapper[]> {
+  ) {
     const detailsRow = (await this.getDetailsRows())[options.rowIndex || 0];
-    return await detailsRow.findAllByTestSubject('~docTableRowAction');
+    const actionBtn = await detailsRow.findByTestSubject('docTableRowSingleDocumentLink');
+    await actionBtn.click();
+    await this.header.waitUntilLoadingHasFinished();
+  }
+
+  public async openSurroundingDocumentsView(
+    options: SelectOptions = { isAnchorRow: false, rowIndex: 0 }
+  ) {
+    const detailsRow = (await this.getDetailsRows())[options.rowIndex || 0];
+    const actionBtn = await detailsRow.findByTestSubject('docTableRowSurroundingDocumentsLink');
+    await actionBtn.click();
+    await this.header.waitUntilLoadingHasFinished();
   }
 
   public async getAnchorDetailsRow(): Promise<WebElementWrapper> {

@@ -42,13 +42,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
       await dataGrid.clickRowToggle({ rowIndex: 0 });
 
       // click the open action
-      await retry.try(async () => {
-        const rowActions = await dataGrid.getRowActions({ rowIndex: 0 });
-        if (!rowActions.length) {
-          throw new Error('row actions empty, trying again');
-        }
-        await rowActions[0].click();
-      });
+      await dataGrid.openSingleDocumentView({ rowIndex: 0 });
 
       await retry.waitFor('hit loaded', async () => {
         const hasDocHit = await testSubjects.exists('doc-hit');

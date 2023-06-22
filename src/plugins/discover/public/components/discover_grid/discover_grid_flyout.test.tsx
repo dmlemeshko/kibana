@@ -97,7 +97,7 @@ describe('Discover flyout', function () {
   it('should be rendered correctly using an data view without timefield', async () => {
     const { component, props } = await mountComponent({});
 
-    const url = findTestSubject(component, 'docTableRowAction').prop('href');
+    const url = findTestSubject(component, 'docTableRowSingleDocumentLink').prop('href');
     expect(url).toMatchInlineSnapshot(`"mock-doc-redirect-url"`);
     findTestSubject(component, 'euiFlyoutCloseButton').simulate('click');
     expect(props.onClose).toHaveBeenCalled();
@@ -106,10 +106,15 @@ describe('Discover flyout', function () {
   it('should be rendered correctly using an data view with timefield', async () => {
     const { component, props } = await mountComponent({ dataView: dataViewWithTimefieldMock });
 
-    const actions = findTestSubject(component, 'docTableRowAction');
-    expect(actions.length).toBe(2);
-    expect(actions.first().prop('href')).toMatchInlineSnapshot(`"mock-doc-redirect-url"`);
-    expect(actions.last().prop('href')).toMatchInlineSnapshot(`"mock-context-redirect-url"`);
+    const singleDocumentLink = findTestSubject(component, 'docTableRowSingleDocumentLink');
+    const surroundingDocumentsLink = findTestSubject(
+      component,
+      'docTableRowSurroundingDocumentsLink'
+    );
+    expect(singleDocumentLink.prop('href')).toMatchInlineSnapshot(`"mock-doc-redirect-url"`);
+    expect(surroundingDocumentsLink.prop('href')).toMatchInlineSnapshot(
+      `"mock-context-redirect-url"`
+    );
     findTestSubject(component, 'euiFlyoutCloseButton').simulate('click');
     expect(props.onClose).toHaveBeenCalled();
   });
@@ -201,7 +206,7 @@ describe('Discover flyout', function () {
     const { component } = await mountComponent({
       query: { sql: 'Select * from indexpattern' },
     });
-    const singleDocumentView = findTestSubject(component, 'docTableRowAction');
+    const singleDocumentView = findTestSubject(component, 'docTableRowSingleDocumentLink');
     expect(singleDocumentView.length).toBeFalsy();
     const flyoutTitle = findTestSubject(component, 'docTableRowDetailsTitle');
     expect(flyoutTitle.text()).toBe('Expanded row');

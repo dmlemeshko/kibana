@@ -72,9 +72,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
 
       // navigate to context view
       await dataGrid.clickRowToggle({ rowIndex: 0 });
-      const [, surrDocs] = await dataGrid.getRowActions({ rowIndex: 0 });
-      await surrDocs.click();
-      await PageObjects.context.waitUntilContextLoadingHasFinished();
+      await dataGrid.openSurroundingDocumentsView();
 
       await find.clickByCssSelector(`[data-test-subj="breadcrumb first"]`);
       await PageObjects.header.waitUntilLoadingHasFinished();
@@ -83,9 +81,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
 
       // navigate to single doc view
       await dataGrid.clickRowToggle({ rowIndex: 0 });
-      const [singleView] = await dataGrid.getRowActions({ rowIndex: 0 });
-      await singleView.click();
-      await PageObjects.header.waitUntilLoadingHasFinished();
+      await dataGrid.openSingleDocumentView();
 
       await find.clickByCssSelector(`[data-test-subj="breadcrumb first"]`);
       await PageObjects.header.waitUntilLoadingHasFinished();
@@ -189,8 +185,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
     it('should open saved search by navigation to context from embeddable', async () => {
       // navigate to context view
       await dataGrid.clickRowToggle({ rowIndex: 0 });
-      const [, surrDocs] = await dataGrid.getRowActions({ rowIndex: 0 });
-      await surrDocs.click();
+      await testSubjects.click('docTableRowSurroundingDocumentsLink');
 
       // close popup
       const alert = await browser.getAlert();

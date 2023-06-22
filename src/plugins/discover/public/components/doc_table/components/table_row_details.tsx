@@ -88,7 +88,7 @@ export const TableRowDetails = ({
                     iconSize="s"
                     iconType="document"
                     flush="left"
-                    data-test-subj="docTableRowAction"
+                    data-test-subj="docTableRowSurroundingDocumentsLink"
                     href={contextViewHref}
                     onClick={onOpenContextView}
                   >
@@ -106,7 +106,7 @@ export const TableRowDetails = ({
                   iconSize="s"
                   iconType="document"
                   flush="left"
-                  data-test-subj="docTableRowAction"
+                  data-test-subj="docTableRowSingleDocumentLink"
                   href={singleDocHref}
                   onClick={onOpenSingleDoc}
                 >
