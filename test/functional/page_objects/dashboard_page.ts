@@ -282,7 +282,7 @@ export class DashboardPageObject extends FtrService {
 
   public async getIsInViewMode() {
     this.log.debug('getIsInViewMode');
-    return await this.testSubjects.exists('dashboardEditMode');
+    return await this.testSubjects.exists('dashboardEditMode', { timeout: 1000 });
   }
 
   public async ensureDashboardIsInEditMode() {
@@ -294,17 +294,26 @@ export class DashboardPageObject extends FtrService {
 
   public async clickCancelOutOfEditMode(accept = true) {
     this.log.debug('clickCancelOutOfEditMode');
+    this.log.info(`clickCancelOutOfEditMode #1 ${new Date()}`);
     if (await this.getIsInViewMode()) return;
+    this.log.info(`clickCancelOutOfEditMode #2 ${new Date()}`);
     await this.retry.waitFor('leave edit mode button enabled', async () => {
       const leaveEditModeButton = await this.testSubjects.find('dashboardViewOnlyMode');
+      this.log.info(`clickCancelOutOfEditMode #3 ${new Date()}`);
       const isDisabled = await leaveEditModeButton.getAttribute('disabled');
+      this.log.info(`clickCancelOutOfEditMode #4 ${new Date()}`);
       return !isDisabled;
     });
     await this.testSubjects.click('dashboardViewOnlyMode');
+    this.log.info(`clickCancelOutOfEditMode #5 ${new Date()}`);
     if (accept) {
-      const confirmation = await this.testSubjects.exists('confirmModalTitleText');
+      const confirmation = await this.testSubjects.exists('confirmModalTitleText', {
+        timeout: 1000,
+      });
+      this.log.info(`clickCancelOutOfEditMode #6 ${new Date()}`);
       if (confirmation) {
         await this.common.clickConfirmOnModal();
+        this.log.info(`clickCancelOutOfEditMode #7 ${new Date()}`);
       }
     }
   }
@@ -476,25 +485,36 @@ export class DashboardPageObject extends FtrService {
     clickMenuItem = true
   ) {
     await this.retry.try(async () => {
-      await this.enterDashboardTitleAndClickSave(dashboardName, saveOptions, clickMenuItem);
+      this.log.info(`saveDashboard #1 ${new Date()}`);
+      await this.enterDashboardTitleAndClickSave(dashboardName, saveOptions, clickMenuItem); // 1s
+      this.log.info(`saveDashboard #2 ${new Date()}`);
 
       if (saveOptions.needsConfirm) {
         await this.ensureDuplicateTitleCallout();
+        this.log.info(`saveDashboard #3 ${new Date()}`);
         await this.clickSave();
+        this.log.info(`saveDashboard #4 ${new Date()}`);
       }
 
       // Confirm that the Dashboard has actually been saved
-      await this.testSubjects.existOrFail('saveDashboardSuccess');
+      await this.testSubjects.existOrFail('saveDashboardSuccess'); // 0s
+      this.log.info(`saveDashboard #5 ${new Date()}`);
     });
-    const message = await this.common.closeToast();
-    await this.header.waitUntilLoadingHasFinished();
-    await this.common.waitForSaveModalToClose();
+    const message = await this.common.closeToast(); // 1s
+    this.log.info(`saveDashboard #6 ${new Date()}`);
+    await this.header.waitUntilLoadingHasFinished(); // 2s
+    this.log.info(`saveDashboard #7 ${new Date()}`);
+    await this.common.waitForSaveModalToClose(); // 6s fixed*
+    this.log.info(`saveDashboard #8 ${new Date()}`);
 
-    const isInViewMode = await this.testSubjects.exists('dashboardEditMode');
+    const isInViewMode = await this.testSubjects.exists('dashboardEditMode'); // 3s
+    this.log.info(`saveDashboard #9 ${new Date()}`);
     if (saveOptions.exitFromEditMode && !isInViewMode) {
-      await this.clickCancelOutOfEditMode();
+      await this.clickCancelOutOfEditMode(); // 6s
+      this.log.info(`saveDashboard #10 ${new Date()}`);
     }
-    await this.header.waitUntilLoadingHasFinished();
+    await this.header.waitUntilLoadingHasFinished(); // 2s
+    this.log.info(`saveDashboard #11 ${new Date()}`);
 
     return message;
   }

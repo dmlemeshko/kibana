@@ -85,27 +85,41 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
     });
 
     it('Overriding colors on an area chart is preserved', async () => {
+      log.info(`#1 ${new Date()}`);
       await PageObjects.dashboard.gotoDashboardLandingPage();
+      log.info(`#2 ${new Date()}`);
 
-      await PageObjects.dashboard.clickNewDashboard();
+      await PageObjects.dashboard.clickNewDashboard(); // fixed
+      log.info(`#3 ${new Date()}`);
       await PageObjects.timePicker.setHistoricalDataRange();
+      log.info(`#4 ${new Date()}`);
 
       const visName = AREA_CHART_VIS_NAME;
-      await dashboardAddPanel.addVisualization(visName);
+      await dashboardAddPanel.addVisualization(visName); // 20 sec
+      log.info(`#5 ${new Date()}`);
       const dashboardName = 'Overridden colors - new charts library';
-      await PageObjects.dashboard.saveDashboard(dashboardName);
+      await PageObjects.dashboard.saveDashboard(dashboardName); // 21 sec
+      log.info(`#6 ${new Date()}`);
 
       await PageObjects.dashboard.switchToEditMode();
+      log.info(`#7 ${new Date()}`);
       await queryBar.clickQuerySubmitButton();
+      log.info(`#8 ${new Date()}`);
 
-      await PageObjects.visChart.openLegendOptionColorsForXY('Count', `[data-title="${visName}"]`);
+      await PageObjects.visChart.openLegendOptionColorsForXY('Count', `[data-title="${visName}"]`); // 9 sec
+      log.info(`#9 ${new Date()}`);
       const overwriteColor = '#d36086';
       await PageObjects.visChart.selectNewLegendColorChoice(overwriteColor);
+      log.info(`#10 ${new Date()}`);
 
-      await PageObjects.dashboard.saveDashboard(dashboardName);
+      await PageObjects.dashboard.saveDashboard(dashboardName); // 20 sec
+      log.info(`#11 ${new Date()}`);
 
-      await PageObjects.dashboard.gotoDashboardLandingPage();
-      await PageObjects.dashboard.loadSavedDashboard(dashboardName);
+      await PageObjects.dashboard.gotoDashboardLandingPage(); // 9 sec
+      log.info(`#12 ${new Date()}`);
+
+      await PageObjects.dashboard.loadSavedDashboard(dashboardName); // 4 sec
+      log.info(`#13 ${new Date()}`);
 
       await enableNewChartLibraryDebug(true);
 
@@ -113,6 +127,7 @@ export default function ({ getService, getPageObjects }: FtrProviderContext) {
         overwriteColor,
         xyChartSelector
       );
+      log.info(`#14 ${new Date()}`);
 
       expect(colorChoiceRetained).to.be(true);
     });
