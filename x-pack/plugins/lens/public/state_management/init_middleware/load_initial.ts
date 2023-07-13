@@ -98,6 +98,7 @@ export function loadInitial(
   },
   autoApplyDisabled: boolean
 ) {
+  const startTime = window.performance.now();
   const {
     lensServices,
     datasourceMap,
@@ -200,6 +201,8 @@ export function loadInitial(
             if (autoApplyDisabled) {
               store.dispatch(disableAutoApply());
             }
+            const duration = window.performance.now() - startTime;
+            window.console.log(`lens - loadInitial - !initialInput duration ${duration}`);
           }
         )
         .catch((e: { message: string }) => {
@@ -264,6 +267,8 @@ export function loadInitial(
         if (autoApplyDisabled) {
           store.dispatch(disableAutoApply());
         }
+        const duration = window.performance.now() - startTime;
+        window.console.log(`lens - loadInitial - else duration ${duration}`);
       })
       .catch((e: { message: string }) => {
         notifications.toasts.addDanger({
@@ -368,6 +373,8 @@ export function loadInitial(
                 if (autoApplyDisabled) {
                   store.dispatch(disableAutoApply());
                 }
+                const duration = window.performance.now() - startTime;
+                window.console.log(`lens - loadInitial - else else duration ${duration}`);
               }
             )
             .catch((e: { message: string }) =>

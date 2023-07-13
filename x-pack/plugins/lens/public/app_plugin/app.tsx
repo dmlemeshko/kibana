@@ -240,6 +240,7 @@ export function App({
 
   // Sync Kibana breadcrumbs any time the saved document's title changes
   useEffect(() => {
+    window.console.log(`Sync Kibana breadcrumbs`);
     const isByValueMode = getIsByValueMode();
     const comesFromVizEditorDashboard =
       initialContext && 'originatingApp' in initialContext && initialContext.originatingApp;
@@ -363,6 +364,7 @@ export function App({
 
   // keeping the initial doc state created by the context
   useEffect(() => {
+    window.console.log(`keeping the initial doc state created by the context`);
     if (lastKnownDoc && !initialDocFromContext) {
       setInitialDocFromContext(lastKnownDoc);
     }
@@ -505,6 +507,7 @@ export function App({
   const [userMessages, setUserMessages] = useState<UserMessage[]>([]);
 
   useEffect(() => {
+    window.console.log(`setUserMessages`);
     setUserMessages([
       ...(activeDatasourceId
         ? datasourceMap[activeDatasourceId].getUserMessages(

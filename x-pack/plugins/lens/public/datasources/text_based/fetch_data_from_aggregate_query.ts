@@ -28,6 +28,7 @@ export function fetchDataFromAggregateQuery(
   filters?: Filter[],
   inputQuery?: Query
 ) {
+  window.console.log(`lens - fetchDataFromAggregateQuery()`);
   const timeRange = data.query.timefilter.timefilter.getTime();
   return textBasedQueryStateToAstWithValidation({
     filters,

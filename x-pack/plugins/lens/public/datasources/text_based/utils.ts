@@ -19,11 +19,15 @@ import type { DataViewsState } from '../../state_management';
 export async function loadIndexPatternRefs(
   indexPatternsService: DataViewsPublicPluginStart
 ): Promise<IndexPatternRef[]> {
+  const startTime = window.performance.now();
   const indexPatterns = await indexPatternsService.getIdsWithTitle();
 
   const timefields = await Promise.all(
     indexPatterns.map((p) => indexPatternsService.get(p.id).then((pat) => pat.timeFieldName))
   );
+
+  const duration = window.performance.now() - startTime;
+  window.console.log(`lens - loadIndexPatternRefs duration: ${duration}`);
 
   return indexPatterns
     .map((p, i) => ({ ...p, timeField: timefields[i] }))
@@ -102,6 +106,7 @@ export async function getStateFromAggregateQuery(
     }
     timeFieldName = dataView.timeFieldName;
     const table = await fetchDataFromAggregateQuery(query, dataView, data, expressions);
+    window.console.log(`lens - fetchDataFromAggregateQuery()`);
     columnsFromQuery = table?.columns ?? [];
     allColumns = getAllColumns(state.layers[newLayerId].allColumns, columnsFromQuery);
   } catch (e) {

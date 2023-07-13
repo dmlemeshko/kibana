@@ -145,6 +145,7 @@ export async function loadIndexPatterns({
   adHocDataViews?: Record<string, DataViewSpec>;
   onIndexPatternRefresh?: () => void;
 }) {
+  const startTime = window.performance.now();
   const missingIds = patterns.filter((id) => !cache[id] && !adHocDataViews?.[id]);
   const hasAdHocDataViews = Object.values(adHocDataViews || {}).length > 0;
 
@@ -187,6 +188,9 @@ export async function loadIndexPatterns({
     }),
     { ...cache }
   );
+
+  const duration = window.performance.now() - startTime;
+  window.console.log(`lens - loadIndexPatterns duration: ${duration}`);
 
   return indexPatternsObject;
 }

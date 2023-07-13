@@ -307,6 +307,7 @@ export class LensPlugin {
       contentManagement,
     }: LensPluginSetupDependencies
   ) {
+    const startTime = window.performance.now();
     const startServices = createStartServicesGetter(core.getStartServices);
 
     const getStartServicesForEmbeddable = async (): Promise<LensEmbeddableStartServices> => {
@@ -483,6 +484,9 @@ export class LensPlugin {
         plugins.fieldFormats.deserialize
       );
     };
+
+    const duration = window.performance.now() - startTime;
+    window.console.log(`lens setup duration ${duration}`);
 
     return {
       registerVisualization: (vis: Visualization | (() => Promise<Visualization>)) => {

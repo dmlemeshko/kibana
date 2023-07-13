@@ -70,6 +70,7 @@ export function getEditLensConfiguration(
 
         setLensServices(lensServicesT);
       }
+      window.console.log(`lens - loadLensService`);
       loadLensService();
     }, []);
 

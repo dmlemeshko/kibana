@@ -333,6 +333,7 @@ export const InnerFormBasedDataPanel = function InnerFormBasedDataPanel({
     () =>
       editPermission
         ? async (fieldName: string) => {
+            window.console.log(`lens - removeField()`);
             const indexPatternInstance = await dataViews.get(currentIndexPattern?.id);
             closeFieldEditor.current = indexPatternFieldEditor.openDeleteModal({
               ctx: {

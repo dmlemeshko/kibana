@@ -28,6 +28,7 @@ export class DatatableVisualization {
     { expressions, formatFactory, editorFrame, charts }: DatatableVisualizationPluginSetupPlugins
   ) {
     editorFrame.registerVisualization(async () => {
+      const startTime = window.performance.now();
       const { getDatatableRenderer, getDatatableVisualization } = await import(
         '../../async_services'
       );
@@ -43,6 +44,9 @@ export class DatatableVisualization {
           uiSettings: core.uiSettings,
         })
       );
+
+      const duration = window.performance.now() - startTime;
+      window.console.log(`DatatableVisualization.registerVisualization - ${duration}`);
 
       return getDatatableVisualization({ paletteService: palettes, theme: core.theme });
     });

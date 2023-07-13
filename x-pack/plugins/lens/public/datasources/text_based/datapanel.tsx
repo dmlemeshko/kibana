@@ -73,6 +73,7 @@ export function TextBasedDataPanel({
       }
     }
     fetchData();
+    window.console.log(`lens - fetchData()`);
   }, [data, dataViews, expressions, prevQuery, query, setState, state, frame.dataViews]);
 
   const { fieldList } = state;

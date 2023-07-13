@@ -356,6 +356,8 @@ export const LensTopNavMenu = ({
   const allLoaded = Object.values(datasourceStates).every(({ isLoading }) => isLoading === false);
 
   useEffect(() => {
+    const startTime = window.performance.now();
+
     const activeDatasource =
       datasourceMap && activeDatasourceId && !datasourceStates[activeDatasourceId].isLoading
         ? datasourceMap[activeDatasourceId]
@@ -404,6 +406,8 @@ export const LensTopNavMenu = ({
         }
       );
     }
+    const duration = window.performance.now() - startTime;
+    window.console.log(`lens - index patterns duration: ${duration}`);
   }, [
     datasourceStates,
     activeDatasourceId,
