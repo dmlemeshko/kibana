@@ -29,9 +29,15 @@ export const MetricChartWrapper = React.memo(
   ({ color, extra, id, loading, value, subtitle, title, toolTip, style, ...props }: Props) => {
     const euiTheme = useEuiTheme();
     const loadedOnce = useRef(false);
+    const startTime = useRef<number>(0);
 
     useEffect(() => {
       if (!loadedOnce.current && !loading) {
+        if (title && subtitle && value) {
+        // metric chart loading is completed
+        const duration = window.performance.now() - startTime.current;
+        window.console.log(`MetricChartWrapper ${id} ${title} ${subtitle} ${value} loading took: ${duration}`)
+        }
         loadedOnce.current = true;
       }
       return () => {

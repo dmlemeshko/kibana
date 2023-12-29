@@ -24,6 +24,10 @@ export const LensWrapper = ({
   query,
   ...props
 }: LensWrapperProps) => {
+      const {
+      services: { telemetry },
+    } = useKibanaContextForPlugin();
+  const startTime = useRef<number>(0);
   const { euiTheme } = useEuiTheme();
   const [intersectionObserverEntry, setIntersectionObserverEntry] =
     useState<IntersectionObserverEntry>();
@@ -78,6 +82,17 @@ export const LensWrapper = ({
     (isLoading: boolean) => {
       if (!embeddableLoaded) {
         setEmbeddableLoaded(true);
+      }
+
+      if (!isLoading) {
+        // LensWrapper loading is completed 
+        const duration = window.performance.now() - startTime.current;
+        telemetry.reportPerformanceMetricEvent(
+          'infra_hosts_kpi_grid',
+          duration,
+          {},
+          { lensId: props.id },
+        );
       }
 
       if (onLoad) {
