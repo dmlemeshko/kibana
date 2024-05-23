@@ -61,3 +61,5 @@ export default ({ loadTestFile, getService }: FtrProviderContext) => {
     });
   });
 };
+
+export const configPath = 'x-pack/test/functional/apps/canvas/config.ts';

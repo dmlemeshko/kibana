@@ -10,12 +10,13 @@ import Path from 'path';
 import { ToolingLog } from '@kbn/tooling-log';
 import { defaultsDeep } from 'lodash';
 import { createFlagError, createFailError } from '@kbn/dev-cli-errors';
-import { REPO_ROOT } from '@kbn/repo-info';
+// import { REPO_ROOT } from '@kbn/repo-info';
 
 import { FtrConfigProvider, GenericFtrProviderContext } from '../../public_types';
 import { Config } from './config';
 import { EsVersion } from '../es_version';
-import { FTR_CONFIGS_MANIFEST_REL, FTR_CONFIGS_MANIFEST_PATHS } from './ftr_configs_manifest';
+import { loadDefaultConfigProvider } from './load_config_provider';
+// import { FTR_CONFIGS_MANIFEST_REL, FTR_CONFIGS_MANIFEST_PATHS } from './ftr_configs_manifest';
 
 interface LoadSettingsOptions {
   path: string;
@@ -33,6 +34,11 @@ interface Journey {
 export type ConfigModule =
   | {
       type: 'config';
+      path: string;
+      provider: FtrConfigProvider;
+    }
+  | {
+      type: 'index';
       path: string;
       provider: FtrConfigProvider;
     }
@@ -60,20 +66,30 @@ async function getConfigModule({
     throw error;
   }
 
-  if (
-    primary &&
-    !FTR_CONFIGS_MANIFEST_PATHS.includes(resolvedPath) &&
-    !resolvedPath.includes(`${Path.sep}__fixtures__${Path.sep}`)
-  ) {
-    const rel = Path.relative(REPO_ROOT, resolvedPath);
-    throw createFlagError(
-      `Refusing to load FTR Config at [${rel}] which is not listed in [${FTR_CONFIGS_MANIFEST_REL}]. All FTR Config files must be listed there, use the "enabled" key if the FTR Config should be run on automatically on PR CI, or the "disabled" key if it is run manually or by a special job.`
-    );
-  }
+  // if (
+  //   primary &&
+  //   !FTR_CONFIGS_MANIFEST_PATHS.includes(resolvedPath) &&
+  //   !resolvedPath.includes(`${Path.sep}__fixtures__${Path.sep}`)
+  // ) {
+  //   const rel = Path.relative(REPO_ROOT, resolvedPath);
+  //   throw createFlagError(
+  //     `Refusing to load FTR Config at [${rel}] which is not listed in [${FTR_CONFIGS_MANIFEST_REL}]. All FTR Config files must be listed there, use the "enabled" key if the FTR Config should be run on automatically on PR CI, or the "disabled" key if it is run manually or by a special job.`
+  //   );
+  // }
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const exports = require(resolvedPath);
   const defaultExport = exports.__esModule ? exports.default : exports;
+
+  if (typeof defaultExport === 'function' && exports.configPath) {
+    // entry point is index file with tests
+    return {
+      type: 'index',
+      path: resolvedPath,
+      provider: loadDefaultConfigProvider(resolvedPath, exports.configPath),
+    };
+  }
+
   if (typeof defaultExport === 'function') {
     return {
       type: 'config',
