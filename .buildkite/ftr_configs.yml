@@ -1,4 +1,5 @@
 disabled:
+  - x-pack/test_serverless/shared/config.stateful.base.ts
   # Base config files, only necessary to inform config finding script
   - test/functional/config.base.js
   - test/functional/firefox/config.base.ts

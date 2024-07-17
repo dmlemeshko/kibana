@@ -240,6 +240,20 @@ export function createTestEsCluster<
         }));
       } else if (esFrom === 'snapshot') {
         ({ installPath, disableEsTmpDir } = await firstNode.installSnapshot(config));
+      } else if (esFrom === 'docker') {
+        await firstNode.runStatefulInDocker({
+          basePath,
+          esArgs: customEsArgs,
+          dataPath: `statefull-${clusterName}`,
+          kibanaUrl: 'http://localhost:5620',
+          port: 9200,
+          clean: true,
+          background: true,
+          files,
+          ssl: true,
+          kill: true, // likely don't need this but avoids any issues where the ESS cluster wasn't cleaned up
+          waitForReady: true,
+        });
       } else if (esFrom === 'serverless') {
         if (!esServerlessOptions) {
           throw new Error(

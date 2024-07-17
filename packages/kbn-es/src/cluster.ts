@@ -21,6 +21,7 @@ import treeKill from 'tree-kill';
 import { downloadSnapshot, installSnapshot, installSource, installArchive } from './install';
 import { ES_BIN, ES_PLUGIN_BIN, ES_KEYSTORE_BIN } from './paths';
 import {
+  DockerEsOptions,
   DockerOptions,
   extractConfigFiles,
   log as defaultLog,
@@ -28,6 +29,7 @@ import {
   parseEsLog,
   runDockerContainer,
   runServerlessCluster,
+  runStatefulCluster,
   ServerlessOptions,
   stopServerlessCluster,
   teardownServerlessClusterSync,
@@ -67,6 +69,7 @@ export class Cluster {
   private process: execa.ExecaChildProcess | null;
   private outcome: Promise<void> | null;
   private serverlessNodes: string[];
+  private nodes: string[];
   private setupPromise: Promise<unknown> | null;
   private stdioTarget: NodeJS.WritableStream | null;
 
@@ -551,6 +554,38 @@ export class Cluster {
     }
 
     this.serverlessNodes = await runServerlessCluster(this.log, options);
+
+    return this.serverlessNodes;
+  }
+
+  async runStatefulInDocker(options: DockerEsOptions) {
+    if (this.process || this.outcome) {
+      throw new Error('ES stateful cluster has already been started');
+    }
+
+    if (!options.skipTeardown) {
+      /**
+       * Ideally would be async and an event like beforeExit or SIGINT,
+       * but those events are not being triggered in FTR child process.
+       */
+
+      const image = 'docker.elastic.co/elasticsearch/elasticsearch:8.16.0-SNAPSHOT';
+      process.on('exit', () => {
+        const { stdout } = execa.commandSync(
+          `docker ps --filter status=running --filter ancestor=${image} --quiet`
+        );
+        // Filter empty strings
+        const runningNodes = stdout.split(/\r?\n/).filter((s) => s);
+
+        if (runningNodes.length) {
+          this.log.info('Killing running serverless ES nodes.');
+
+          execa.commandSync(`docker kill ${runningNodes.join(' ')}`);
+        }
+      });
+    }
+
+    this.nodes = await runStatefulCluster(this.log, options);
 
     return this.serverlessNodes;
   }

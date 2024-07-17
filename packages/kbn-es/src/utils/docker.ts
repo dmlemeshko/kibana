@@ -97,6 +97,30 @@ export interface ServerlessOptions extends EsClusterExecOptions, BaseOptions {
   resources?: string | string[];
 }
 
+export interface DockerEsOptions extends EsClusterExecOptions, BaseOptions {
+  /** Publish ES docker container on additional host IP */
+  host?: string;
+  /** Clean (or delete) all data created by the ES cluster after it is stopped */
+  clean?: boolean;
+  /** Full path where the ES cluster will store data */
+  basePath: string;
+  /** Directory in basePath where the ES cluster will store data */
+  dataPath?: string;
+  /** If this process exits, leave the ES cluster running in the background */
+  skipTeardown?: boolean;
+  /** Start the ES cluster in the background instead of remaining attached: useful for running tests */
+  background?: boolean;
+  /** Wait for the ES cluster to be ready to serve requests */
+  waitForReady?: boolean;
+  /** Fully qualified URL where Kibana is hosted (including base path) */
+  kibanaUrl?: string;
+  /**
+   * Resource file(s) to overwrite
+   * (see list of files that can be overwritten under `packages/kbn-es/src/serverless_resources/users`)
+   */
+  resources?: string | string[];
+}
+
 interface ServerlessEsNodeArgs {
   esArgs?: Array<[string, string]>;
   image: string;
@@ -237,6 +261,18 @@ const DOCKER_SSL_ESARGS: Array<[string, string]> = [
   ['xpack.security.transport.ssl.verification_mode', 'certificate'],
 
   ['xpack.security.transport.ssl.keystore.password', ES_P12_PASSWORD],
+];
+
+export const STATEFUL_NODES: Array<Omit<ServerlessEsNodeArgs, 'image'>> = [
+  {
+    name: 'es01',
+    params: ['-p', '127.0.0.1:9300:9300', '--env', 'discovery.type=single-node'],
+    esArgs: [
+      ['xpack.searchable.snapshot.shared_cache.size', '16MB'],
+
+      ['xpack.searchable.snapshot.shared_cache.region_size', '256K'],
+    ],
+  },
 ];
 
 export const SERVERLESS_NODES: Array<Omit<ServerlessEsNodeArgs, 'image'>> = [
@@ -728,6 +764,41 @@ export async function runServerlessEsNode(
   );
 }
 
+export async function runStatefulEsNode(
+  log: ToolingLog,
+  { params, name, image }: ServerlessEsNodeArgs
+) {
+  const SHARED_PARAMS = [
+    'run',
+    '--rm',
+    // '--detach',
+    '--interactive',
+    // '--tty',
+    '--net',
+    'elastic',
+  ];
+  const dockerCmd = SHARED_PARAMS.concat(
+    params,
+    ['--name', name, '--env', `node.name=${name}`],
+    image
+  );
+
+  log.info(chalk.bold(`Running stateful ES node: ${name}`));
+  log.indent(4, () => log.info(chalk.dim(`docker ${dockerCmd.join(' ')}`)));
+
+  const { stdout } = await execa('docker', dockerCmd);
+
+  log.indent(4, () =>
+    log.info(`${name} is running.
+  Container Name: ${name}
+  Container Id:   ${stdout}
+
+  View logs:            ${chalk.bold(`docker logs -f ${name}`)}
+  Shell access:         ${chalk.bold(`docker exec -it ${name} /bin/bash`)}
+`)
+  );
+}
+
 function getESClient(clientOptions: ClientOptions): Client {
   return new Client({
     Connection: HttpConnection,
@@ -774,6 +845,197 @@ export async function runServerlessCluster(log: ToolingLog, options: ServerlessO
   if (!options.skipTeardown) {
     // SIGINT will not trigger in FTR (see cluster.runServerless for FTR signal)
     process.on('SIGINT', () => teardownServerlessClusterSync(log, options));
+  }
+
+  const esNodeUrl = `${options.ssl ? 'https' : 'http'}://${portCmd[1].substring(
+    0,
+    portCmd[1].lastIndexOf(':')
+  )}`;
+
+  const client = getESClient({
+    node: esNodeUrl,
+    auth: {
+      username: ELASTIC_SERVERLESS_SUPERUSER,
+      password: ELASTIC_SERVERLESS_SUPERUSER_PASSWORD,
+    },
+    ...(options.ssl
+      ? {
+          tls: {
+            ca: [fs.readFileSync(CA_CERT_PATH)],
+            // NOTE: Even though we've added ca into the tls options, we are using 127.0.0.1 instead of localhost
+            // for the ip which is not validated. As such we are getting the error
+            // Hostname/IP does not match certificate's altnames: IP: 127.0.0.1 is not in the cert's list:
+            // To work around that we are overriding the function checkServerIdentity too
+            checkServerIdentity: () => {
+              return undefined;
+            },
+          },
+        }
+      : {}),
+  });
+
+  const readyPromise = waitUntilClusterReady({ client, expectedStatus: 'green', log }).then(
+    async () => {
+      if (!options.ssl || !options.kibanaUrl) {
+        return;
+      }
+
+      await ensureSAMLRoleMapping(client);
+
+      log.success(
+        `Created role mapping for mock identity provider. You can now login using ${chalk.bold.cyan(
+          MOCK_IDP_REALM_NAME
+        )} realm`
+      );
+    }
+  );
+
+  if (options.waitForReady) {
+    log.info('Waiting until ES is ready to serve requests...');
+    await readyPromise;
+    if (!options.esArgs || !options.esArgs.includes('xpack.security.enabled=false')) {
+      // If security is not disabled, make sure the security index exists before running the test to avoid flakiness
+      await waitForSecurityIndex({ client, log });
+    }
+  }
+
+  if (!options.background) {
+    // The serverless cluster has to be started detached, so we attach a logger afterwards for output
+    await execa('docker', ['logs', '-f', SERVERLESS_NODES[0].name], {
+      // inherit is required to show Docker output and Java console output for pw, enrollment token, etc
+      stdio: ['ignore', 'inherit', 'inherit'],
+    }).catch(() => {
+      /**
+       * docker logs will throw errors when the nodes are killed through SIGINT
+       * and the entrypoint doesn't exit normally, so we silence the errors.
+       */
+    });
+  }
+
+  return nodeNames;
+}
+
+export async function runStatefulCluster(log: ToolingLog, options: DockerEsOptions) {
+  const image = getDockerImage({
+    image: options.image,
+    tag: options.tag,
+  });
+
+  // 'docker.elastic.co/elasticsearch/elasticsearch:8.16.0-SNAPSHOT';
+  await setupDocker({ log, image, options });
+
+  // const volumeCmd = await setupServerlessVolumes(log, options);
+  const volumeCmd = [
+    // '--volume',
+    // '/Users/dmle/github/kibana/.es:/objectstore:z',
+    // '--env',
+    // 'stateless.object_store.bucket=stateless-cluster-ftr',
+    '--volume',
+    `${REPO_ROOT}/x-pack/test/security_api_integration/plugins/saml_provider/metadata.xml:/usr/share/elasticsearch/config/files/x-pack/test/security_api_integration/plugins/saml_provider/metadata.xml:z`,
+    '--volume',
+    `${REPO_ROOT}/x-pack/test/security_api_integration/packages/helpers/oidc/jwks.json:/usr/share/elasticsearch/config/files/x-pack/test/security_api_integration/packages/helpers/oidc/jwks.json:z`,
+    '--volume',
+    `${REPO_ROOT}/.es/idp_metadata.xml:/usr/share/elasticsearch/config/secrets/idp_metadata.xml:z`,
+    '--volume',
+    `${REPO_ROOT}/packages/kbn-dev-utils/certs/elasticsearch.p12:/usr/share/elasticsearch/config/certs/elasticsearch.p12`,
+    '--volume',
+    `${REPO_ROOT}/packages/kbn-es/src/serverless_resources/operator_users.yml:/usr/share/elasticsearch/config/operator_users.yml`,
+    '--volume',
+    `${REPO_ROOT}/packages/kbn-es/src/serverless_resources/role_mapping.yml:/usr/share/elasticsearch/config/role_mapping.yml`,
+    '--volume',
+    `${REPO_ROOT}/packages/kbn-es/src/serverless_resources/service_tokens:/usr/share/elasticsearch/config/service_tokens`,
+    '--volume',
+    `${REPO_ROOT}/packages/kbn-es/src/serverless_resources/users:/usr/share/elasticsearch/config/users`,
+    '--volume',
+    `${REPO_ROOT}/packages/kbn-es/src/serverless_resources/users_roles:/usr/share/elasticsearch/config/users_roles`,
+    '--volume',
+    `${REPO_ROOT}/packages/kbn-es/src/serverless_resources/project_roles/oblt/roles.yml:/usr/share/elasticsearch/config/roles.yml`,
+    '--volume',
+    `${REPO_ROOT}/packages/kbn-es/src/serverless_resources/secrets_ssl.json:/usr/share/elasticsearch/config/secrets/secrets.json:z`,
+    '--volume',
+    `${REPO_ROOT}/packages/kbn-es/src/serverless_resources/jwks.json:/usr/share/elasticsearch/config/secrets/jwks.json:z`,
+  ];
+  const portCmd = resolvePort(options);
+
+  const DEFAULT_ESARGS: Array<[string, string]> = [
+    ['ES_JAVA_OPTS', '-Xms1g -Xmx1g'],
+
+    ['ES_LOG_STYLE', 'file'],
+
+    ['cluster.name', 'stateful'],
+
+    ['ingest.geoip.downloader.enabled', 'false'],
+
+    ['xpack.ml.enabled', 'false'],
+
+    ['xpack.security.enabled', 'true'],
+
+    // JWT realm settings are to closer emulate a real ES serverless env
+    ['xpack.security.authc.realms.jwt.jwt1.allowed_audiences', 'elasticsearch'],
+
+    ['xpack.security.authc.realms.jwt.jwt1.allowed_issuer', 'https://kibana.elastic.co/jwt/'],
+
+    ['xpack.security.authc.realms.jwt.jwt1.claims.principal', 'sub'],
+
+    ['xpack.security.authc.realms.jwt.jwt1.client_authentication.type', 'shared_secret'],
+
+    ['xpack.security.authc.realms.jwt.jwt1.order', '-98'],
+
+    [
+      'xpack.security.authc.realms.jwt.jwt1.pkc_jwkset_path',
+      `${SERVERLESS_CONFIG_PATH}secrets/jwks.json`,
+    ],
+
+    ['xpack.security.operator_privileges.enabled', 'true'],
+
+    ['xpack.security.transport.ssl.enabled', 'true'],
+
+    [
+      'xpack.security.transport.ssl.keystore.path',
+      `${SERVERLESS_CONFIG_PATH}certs/elasticsearch.p12`,
+    ],
+
+    ['xpack.security.transport.ssl.verification_mode', 'certificate'],
+  ];
+
+  const nodeNames = await Promise.all(
+    STATEFUL_NODES.map(async (node, i) => {
+      await runStatefulEsNode(log, {
+        ...node,
+        image,
+        params: node.params.concat(
+          resolveEsArgs(DEFAULT_ESARGS.concat(node.esArgs ?? []), options),
+          i === 0 ? portCmd : [],
+          volumeCmd
+        ),
+      });
+      return node.name;
+    })
+  );
+
+  log.success(`Serverless ES cluster running.
+  Login with username ${chalk.bold.cyan(ELASTIC_SERVERLESS_SUPERUSER)} or ${chalk.bold.cyan(
+    SYSTEM_INDICES_SUPERUSER
+  )} and password ${chalk.bold.magenta(ELASTIC_SERVERLESS_SUPERUSER_PASSWORD)}
+  See packages/kbn-es/src/serverless_resources/README.md for additional information on authentication.
+  Stop the cluster:     ${chalk.bold(`docker container stop ${nodeNames.join(' ')}`)}
+    `);
+
+  if (!options.skipTeardown) {
+    // SIGINT will not trigger in FTR (see cluster.runServerless for FTR signal)
+    process.on('SIGINT', () => {
+      const { stdout } = execa.commandSync(
+        `docker ps --filter status=running --filter ancestor=${image} --quiet`
+      );
+      // Filter empty strings
+      const runningNodes = stdout.split(/\r?\n/).filter((s) => s);
+
+      if (runningNodes.length) {
+        log.info('Killing running stateful ES nodes.');
+
+        execa.commandSync(`docker kill ${runningNodes.join(' ')}`);
+      }
+    });
   }
 
   const esNodeUrl = `${options.ssl ? 'https' : 'http'}://${portCmd[1].substring(
