@@ -143,7 +143,6 @@
         "@types/pngjs",
         "@types/supertest",
         "@wojtekmaj/enzyme-adapter-react-17",
-        "babel-plugin-istanbul",
         "enzyme",
         "enzyme-to-json",
         "faker",
