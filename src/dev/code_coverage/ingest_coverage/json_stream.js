@@ -7,7 +7,28 @@
  * License v3.0 only", or the "Server Side Public License, v 1".
  */
 
-import oboe from 'oboe';
 import { createReadStream } from 'fs';
 
-export default (jsonSummaryPath) => oboe(createReadStream(jsonSummaryPath));
+export default (jsonSummaryPath) => {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    const stream = createReadStream(jsonSummaryPath, { encoding: 'utf8' });
+
+    stream.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+
+    stream.on('end', () => {
+      try {
+        const json = JSON.parse(chunks.join(''));
+        resolve(json);
+      } catch (error) {
+        reject(new Error(`Failed to parse JSON: ${error.message}`));
+      }
+    });
+
+    stream.on('error', (error) => {
+      reject(new Error(`Failed to read file: ${error.message}`));
+    });
+  });
+};

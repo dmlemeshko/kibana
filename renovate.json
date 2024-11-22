@@ -144,7 +144,6 @@
         "babel-plugin-istanbul",
         "faker",
         "nyc",
-        "oboe",
         "pixelmatch",
         "playwright",
         "pngjs",
