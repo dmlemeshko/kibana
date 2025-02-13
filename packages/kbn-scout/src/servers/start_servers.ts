@@ -16,7 +16,7 @@ import { runElasticsearch } from './run_elasticsearch';
 import { getExtraKbnOpts, runKibanaServer } from './run_kibana_server';
 import { StartServerOptions } from './flags';
 import { loadServersConfig } from '../config';
-import { silence } from '../common';
+import { createSamlSessionManager, silence } from '../common';
 
 export async function startServers(log: ToolingLog, options: StartServerOptions) {
   const runStartTime = Date.now();
@@ -47,6 +47,10 @@ export async function startServers(log: ToolingLog, options: StartServerOptions)
     // wait for 5 seconds of silence before logging the
     // success message so that it doesn't get buried
     await silence(log, 5000);
+
+    log.info(`SAML authentication for 'admin' role to create security indexes...`);
+    const sessionManager = createSamlSessionManager(config.getScoutTestConfig(), log);
+    await sessionManager.getInteractiveUserSessionCookieWithRoleScope('admin');
 
     log.success(
       '\n\n' +
