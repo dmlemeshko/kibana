@@ -8,28 +8,28 @@
 import { resolve } from 'path';
 import { FtrConfigProviderContext } from '@kbn/test';
 import { generateConfig } from './config.base';
-import { services } from '../services';
-import { pageObjects } from '../page_objects';
+import { svlServices } from '../services';
+import { svlPageObjects } from '../page_objects';
 
-// eslint-disable-next-line import/no-default-export
 export default async function (ftrConfigProviderContext: FtrConfigProviderContext) {
   const { readConfigFile } = ftrConfigProviderContext;
 
-  const xpackFunctionalConfig = await readConfigFile(
-    require.resolve('../../functional/config.base.js')
+  const svlBaseConfig = await readConfigFile(
+    require.resolve('@kbn/test-suites-serverless/shared/config.base')
   );
 
   return generateConfig({
     ftrConfigProviderContext,
-    baseConfig: xpackFunctionalConfig,
+    baseConfig: svlBaseConfig,
     testFiles: [resolve(__dirname, '../apps/integrations')],
-    junitReportName: 'X-Pack Endpoint Integrations Functional Tests on ESS',
-    target: 'ess',
+    junitReportName: 'X-Pack Endpoint Integrations Functional Tests on Serverless',
+    target: 'serverless',
     kbnServerArgs: [
+      '--serverless=security',
       // set the packagerTaskInterval to 5s in order to speed up test executions when checking fleet artifacts
       '--xpack.securitySolution.packagerTaskInterval=5s',
     ],
-    services,
-    pageObjects,
+    services: svlServices,
+    pageObjects: svlPageObjects,
   });
 }

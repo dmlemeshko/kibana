@@ -8,24 +8,24 @@
 import { FtrConfigProviderContext } from '@kbn/test';
 import { resolve } from 'path';
 import { generateConfig } from './config.base';
-import { services } from '../services';
-import { pageObjects } from '../page_objects';
+import { svlServices } from '../services';
+import { svlPageObjects } from '../page_objects';
 
-// eslint-disable-next-line import/no-default-export
 export default async function (ftrConfigProviderContext: FtrConfigProviderContext) {
   const { readConfigFile } = ftrConfigProviderContext;
 
-  const xpackFunctionalConfig = await readConfigFile(
-    require.resolve('../../functional/config.base.js')
+  const svlBaseConfig = await readConfigFile(
+    require.resolve('@kbn/test-suites-serverless/shared/config.base')
   );
 
   return generateConfig({
     ftrConfigProviderContext,
-    baseConfig: xpackFunctionalConfig,
+    baseConfig: svlBaseConfig,
     testFiles: [resolve(__dirname, '../apps/endpoint')],
-    junitReportName: 'X-Pack Endpoint Functional Tests on ESS',
-    target: 'ess',
-    services,
-    pageObjects,
+    junitReportName: 'X-Pack Endpoint Functional Tests on Serverless',
+    kbnServerArgs: ['--serverless=security'],
+    target: 'serverless',
+    services: svlServices,
+    pageObjects: svlPageObjects,
   });
 }
