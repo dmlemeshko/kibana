@@ -5,8 +5,6 @@
  * 2.0.
  */
 
-import { createPlaywrightConfig } from '@kbn/scout';
+import { globalSetupHook } from '@kbn/scout';
 
-export default createPlaywrightConfig({
-  testDir: './tests',
-});
+globalSetupHook('Setup environment for Search tests', async ({}) => {});
