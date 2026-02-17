@@ -14,6 +14,7 @@ apiTest.describe(
   'Stream lifecycle - retention API',
   { tag: [...tags.stateful.classic, ...tags.serverless.observability.complete] },
   () => {
+    this.timeout(2 * 60_000); // Set timeout to 120 seconds because it runs slower on MKI
     // Stream names must be exactly one level deep when forking from 'logs'
     // Format: logs.<name> where name uses hyphens, not dots
     // The prefix 'lc' is used for cleanup matching
