@@ -18,8 +18,8 @@ plugins:
     - dashboard_markdown
     - data
     - data_view_editor
-    - data_views
     - data_view_management
+    - data_views
     - dev_tools
     - discover
     - discover_enhanced
@@ -52,6 +52,7 @@ plugins:
     - osquery
     - painless_lab
     - profiling
+    - rollup
     - saved_objects_management
     - saved_objects_tagging
     - search_getting_started

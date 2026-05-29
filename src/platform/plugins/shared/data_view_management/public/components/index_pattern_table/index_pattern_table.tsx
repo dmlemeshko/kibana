@@ -327,7 +327,9 @@ export const IndexPatternTable = ({ history, canSave, setShowCreateDialog, title
               &emsp;
               {tagKey === DataViewType.ROLLUP ? (
                 <RollupDeprecationTooltip>
-                  <EuiBadge color="warning">{tagName}</EuiBadge>
+                  <EuiBadge color="warning" data-test-subj="rollupBadge">
+                    {tagName}
+                  </EuiBadge>
                 </RollupDeprecationTooltip>
               ) : (
                 <EuiBadge>{tagName}</EuiBadge>

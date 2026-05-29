@@ -8,6 +8,7 @@
     "fixtures/**/*",
     "public/**/*",
     "server/**/*",
+    "test/**/*",
   ],
   "kbn_references": [
     "@kbn/core",
@@ -37,7 +38,8 @@
     "@kbn/licensing-types",
     "@kbn/data-view-validation",
     "@kbn/index-management-shared-types",
-
+    "@kbn/scout",
+    "@kbn/datemath",
   ],
   "exclude": [
     "target/**/*",

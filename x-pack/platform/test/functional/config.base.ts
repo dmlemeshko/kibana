@@ -134,9 +134,6 @@ export default async function ({ readConfigFile }: FtrConfigProviderContext) {
       roleMappings: {
         pathname: '/app/management/security/role_mappings',
       },
-      rollupJob: {
-        pathname: '/app/management/data/rollup_jobs',
-      },
       apiKeys: {
         pathname: '/app/management/security/api_keys',
       },
@@ -500,37 +497,6 @@ export default async function ({ readConfigFile }: FtrConfigProviderContext) {
             },
           ],
         },
-        manage_rollups_role: {
-          elasticsearch: {
-            cluster: ['manage', 'manage_rollup'],
-            indices: [
-              {
-                names: ['*'],
-                privileges: ['read', 'delete', 'create_index', 'view_index_metadata'],
-              },
-            ],
-          },
-          kibana: [
-            {
-              feature: {
-                discover: ['read'],
-              },
-              spaces: ['*'],
-            },
-          ],
-        },
-
-        test_rollup_reader: {
-          elasticsearch: {
-            indices: [
-              {
-                names: ['rollup-*', 'regular-index*'],
-                privileges: ['read', 'view_index_metadata'],
-              },
-            ],
-          },
-        },
-
         // Kibana feature privilege isn't specific to advancedSetting. It can be anything. https://github.com/elastic/kibana/issues/35965
         test_api_keys: {
           elasticsearch: {
